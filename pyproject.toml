@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "llm-mt5-agent"
-version = "0.1.0"
+version = "0.2.0"
 description = "AI-assisted MetaTrader 5 agent (demo-first, supervised LLM planner + deterministic risk)."
 readme = "README.md"
 license = { text = "MIT" }
@@ -60,7 +60,11 @@ src = ["src", "tests"]
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "UP", "B", "W", "C90", "N", "S", "A", "DTZ", "TID", "Q"]
-ignore = ["S101"]
+ignore = ["S101", "S106"]
+
+[tool.ruff.lint.per-file-ignores]
+"scripts/*.py" = ["E402"]
+"tests/integration/*.py" = ["S110"]
 
 [tool.ruff.lint.isort]
 known-first-party = ["mt5_agent"]
@@ -72,6 +76,9 @@ warn_return_any = true
 warn_unused_configs = false
 show_error_codes = true
 exclude = ["\\.venv/", "build/", "dist/"]
+[[tool.mypy.overrides]]
+module = "MetaTrader5.*"
+ignore_missing_imports = true
 
 [tool.coverage.run]
 source = ["mt5_agent"]

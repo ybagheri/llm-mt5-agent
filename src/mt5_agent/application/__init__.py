@@ -1,3 +1,7 @@
-"""application layer (Phase 00 placeholder - no trading logic yet)."""
+"""Application layer: orchestration services (no direct MT5 imports)."""
 
-__all__: list[str] = []
+from __future__ import annotations
+
+from mt5_agent.application.connection_service import ConnectionService
+
+__all__ = ["ConnectionService"]

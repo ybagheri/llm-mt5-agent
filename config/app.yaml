@@ -11,6 +11,9 @@ enable_live_trading: false
 
 mt5_timeout_ms: 60000
 mt5_portable: false
+# mt5_path: "C:/Program Files/MetaTrader 5/terminal64.exe"
+# mt5_login: null
+# mt5_server: null
 
 llm_provider: none
 llm_timeout_s: 30.0

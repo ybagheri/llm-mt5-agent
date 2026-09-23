@@ -52,3 +52,13 @@ def test_env_overrides_file(tmp_path, monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setenv("MT5_AGENT_LOG_LEVEL", "ERROR")
     s = load_settings(config_path=cfg, load_env_file=False)
     assert s.log_level == "ERROR"
+
+
+def test_mt5_path_and_connection_config(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.delenv("MT5_AGENT_MT5_PATH", raising=False)
+    s = AppSettings(mt5_path="C:/mt5/terminal64.exe", mt5_login=1, mt5_server="S")
+    assert s.mt5_path == "C:/mt5/terminal64.exe"
+    cfg = s.to_connection_config()
+    assert cfg.path == "C:/mt5/terminal64.exe"
+    assert cfg.login == 1
+    assert cfg.server == "S"

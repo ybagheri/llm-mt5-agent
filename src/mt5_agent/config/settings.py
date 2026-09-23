@@ -19,6 +19,8 @@ from typing import Any, Literal
 from pydantic import Field, field_validator, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
+from mt5_agent.domain.terminal import ConnectionConfig
+
 TradingMode = Literal["dry_run", "demo", "live"]
 LogFormat = Literal["json", "text"]
 AppEnv = Literal["development", "testing", "production"]
@@ -46,8 +48,19 @@ class AppSettings(BaseSettings):
     # --- MT5 connection (no secrets here; secrets come from env only) ---
     mt5_login: int | None = Field(default=None)
     mt5_server: str | None = Field(default=None)
+    mt5_path: str | None = Field(default=None)
     mt5_timeout_ms: int = Field(default=60_000, ge=1_000, le=600_000)
     mt5_portable: bool = Field(default=False)
+
+    def to_connection_config(self) -> ConnectionConfig:
+        """Derive the non-secret MT5 connection config (safe to log)."""
+        return ConnectionConfig(
+            timeout_ms=self.mt5_timeout_ms,
+            portable=self.mt5_portable,
+            path=self.mt5_path,
+            login=self.mt5_login,
+            server=self.mt5_server,
+        )
 
     # --- LLM (provider-agnostic; Phase 00 stores selection only) ---
     llm_provider: str = Field(default="none")
