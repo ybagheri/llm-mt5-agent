@@ -3,6 +3,19 @@
 All notable changes to this project will be documented in this file.
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [0.10.0] - 2026-09-23
+
+### Added
+- Phase 09: SQLite-backed memory with four scoped facades.
+- Domain: `MemoryScope/MemoryKind/MemoryRecord` (280-char summaries).
+- Memory: `MemoryStore` ABC, thread-safe `SQLiteMemoryStore` (WAL,
+  `:memory:` for tests), `ShortTerm/Trade/World/StrategyMemory` with
+  retention pruning + whitelisted compact writers.
+- Settings: `memory_db_path` + per-scope keeps.
+- Scripts: `scripts/check_memory.py` (inspect + `--demo`).
+- Tests: store (filters/prune/persistence) + facade suites.
+- Docs: `docs/phases/phase-09.md`, expanded `docs/memory/design.md`.
+
 ## [0.9.0] - 2026-09-23
 
 ### Added

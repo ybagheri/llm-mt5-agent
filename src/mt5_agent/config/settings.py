@@ -94,6 +94,13 @@ class AppSettings(BaseSettings):
     execution_magic: int = Field(default=0, ge=0)
     execution_deviation: int = Field(default=20, ge=0)
 
+    # --- Memory (SQLite today; same domain contract for future backends) ---
+    memory_db_path: str = Field(default="data/memory.db")
+    memory_short_term_keep: int = Field(default=100, ge=1)
+    memory_trade_keep: int = Field(default=500, ge=1)
+    memory_world_keep: int = Field(default=200, ge=1)
+    memory_strategy_keep: int = Field(default=200, ge=1)
+
     def to_risk_config(self) -> RiskConfig:
         """Build the deterministic risk config (safe to log)."""
         symbols: tuple[str, ...] | None = None

@@ -20,6 +20,7 @@ from mt5_agent.domain.execution import (
     OrderRequest,
 )
 from mt5_agent.domain.market import Candle, MarketSnapshot, SymbolInfo, Tick, Timeframe
+from mt5_agent.domain.memory import MAX_SUMMARY_LEN, MemoryKind, MemoryRecord, MemoryScope
 from mt5_agent.domain.planning import (
     MemoryNote,
     PlannerInput,
@@ -83,7 +84,11 @@ __all__ = [
     "MarketContext",
     "MarketDataPort",
     "MarketSnapshot",
+    "MAX_SUMMARY_LEN",
+    "MemoryKind",
     "MemoryNote",
+    "MemoryRecord",
+    "MemoryScope",
     "Order",
     "OrderPort",
     "OrderRequest",

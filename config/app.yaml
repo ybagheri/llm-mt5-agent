@@ -45,3 +45,10 @@ execution_mode: dry_run
 execution_default_volume: 0.01
 execution_magic: 0
 execution_deviation: 20
+
+# Memory: SQLite file + per-scope retention (compact structured rows only).
+memory_db_path: data/memory.db
+memory_short_term_keep: 100
+memory_trade_keep: 500
+memory_world_keep: 200
+memory_strategy_keep: 200

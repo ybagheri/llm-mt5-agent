@@ -17,7 +17,7 @@ See [docs/architecture/overview.md](docs/architecture/overview.md) and [SECURITY
 
 ## Current status
 
-**Phase 08 — Execution Engine** (dry-run first; live dual-gated).
+**Phase 09 — Memory System** (SQLite, compact scoped records).
 
 - ✅ Typed Python package (`src/mt5_agent`)
 - ✅ YAML + env-var configuration with safe defaults
@@ -39,6 +39,8 @@ See [docs/architecture/overview.md](docs/architecture/overview.md) and [SECURITY
   duplicate/cooldown ledger; `scripts/check_risk.py`)
 - ✅ Execution engine (approved-only, dry-run/demo/live gates, idempotent
   ledger, full audit records; `scripts/check_execute.py`)
+- ✅ Memory system (`MemoryStore` + SQLite; short-term/trade/strategy/world
+  scopes, retention-bounded; `scripts/check_memory.py`)
 
 Roadmap: [ROADMAP.md](ROADMAP.md) · Changes: [CHANGELOG.md](CHANGELOG.md) · Phases: [docs/phases/](docs/phases/)
 
