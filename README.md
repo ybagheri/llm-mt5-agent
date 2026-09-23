@@ -17,7 +17,7 @@ See [docs/architecture/overview.md](docs/architecture/overview.md) and [SECURITY
 
 ## Current status
 
-**Phase 05 — LLM Provider Layer** (planner input only; cannot trade).
+**Phase 06 — Planner** (advisory proposals only; cannot trade).
 
 - ✅ Typed Python package (`src/mt5_agent`)
 - ✅ YAML + env-var configuration with safe defaults
@@ -33,6 +33,8 @@ See [docs/architecture/overview.md](docs/architecture/overview.md) and [SECURITY
   `StrategyService` triage; `scripts/check_strategy.py`)
 - ✅ LLM providers (`LLMProvider`; OpenAI/DeepSeek/Gemini/Ollama via config;
   structured JSON, usage/latency tracking; `scripts/check_llm.py`)
+- ✅ Planner (`Planner`/`LLMPlanner` → validated `TradeProposal` w/ HOLD fallback;
+  `scripts/check_plan.py`)
 
 Roadmap: [ROADMAP.md](ROADMAP.md) · Changes: [CHANGELOG.md](CHANGELOG.md) · Phases: [docs/phases/](docs/phases/)
 

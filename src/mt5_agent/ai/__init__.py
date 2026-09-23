@@ -18,6 +18,14 @@ from mt5_agent.ai.gemini import GeminiProvider
 from mt5_agent.ai.http import HttpClient, HttpResponse, UrllibHttpClient
 from mt5_agent.ai.models import LLMMessage, LLMRequest, LLMResponse, LLMUsage
 from mt5_agent.ai.openai_compat import OpenAICompatibleProvider
+from mt5_agent.ai.planner import (
+    SYSTEM_PROMPT,
+    LLMPlanner,
+    Planner,
+    build_user_prompt,
+    hold_proposal,
+    validate_proposal,
+)
 from mt5_agent.ai.provider import LLMProvider
 
 __all__ = [
@@ -29,6 +37,7 @@ __all__ = [
     "LLMError",
     "LLMMessage",
     "LLMParseError",
+    "LLMPlanner",
     "LLMProvider",
     "LLMProviderError",
     "LLMRequest",
@@ -36,7 +45,12 @@ __all__ = [
     "LLMTimeoutError",
     "LLMUsage",
     "OpenAICompatibleProvider",
+    "Planner",
+    "SYSTEM_PROMPT",
     "UrllibHttpClient",
+    "build_user_prompt",
     "create_provider",
+    "hold_proposal",
     "provider_from_settings",
+    "validate_proposal",
 ]

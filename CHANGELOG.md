@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [0.7.0] - 2026-09-23
+
+### Added
+- Phase 06: LLM planner producing validated trade proposals (no execution).
+- Domain: `TradeAction/PlannerInput/MemoryNote/TradeProposal` (+ audit metadata).
+- AI: `Planner` ABC, `LLMPlanner` (JSON contract, strict validation,
+  HOLD fallback), prompt builder, `hold_proposal`.
+- Scripts: `scripts/check_plan.py` (`--stub` offline + live LLM).
+- Tests: planning-model + planner suites (fake providers, no-execution check).
+- Docs: `docs/phases/phase-06.md`, `docs/ai/planner.md`.
+
 ## [0.6.0] - 2026-09-23
 
 ### Added

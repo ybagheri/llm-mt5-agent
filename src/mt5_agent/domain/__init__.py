@@ -14,6 +14,12 @@ from mt5_agent.domain.errors import (
     MT5SymbolNotFoundError,
 )
 from mt5_agent.domain.market import Candle, MarketSnapshot, SymbolInfo, Tick, Timeframe
+from mt5_agent.domain.planning import (
+    MemoryNote,
+    PlannerInput,
+    TradeAction,
+    TradeProposal,
+)
 from mt5_agent.domain.ports import (
     HistoryPort,
     MarketDataPort,
@@ -68,8 +74,10 @@ __all__ = [
     "MarketContext",
     "MarketDataPort",
     "MarketSnapshot",
+    "MemoryNote",
     "Order",
     "OrderPort",
+    "PlannerInput",
     "Position",
     "PositionPort",
     "PositionSide",
@@ -81,5 +89,7 @@ __all__ = [
     "TerminalInfo",
     "Tick",
     "Timeframe",
+    "TradeAction",
+    "TradeProposal",
     "TradeResult",
 ]
