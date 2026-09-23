@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "llm-mt5-agent"
-version = "0.10.0"
+version = "0.11.0"
 description = "AI-assisted MetaTrader 5 agent (demo-first, supervised LLM planner + deterministic risk)."
 readme = "README.md"
 license = { text = "MIT" }

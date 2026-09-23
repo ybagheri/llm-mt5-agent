@@ -101,6 +101,18 @@ class AppSettings(BaseSettings):
     memory_world_keep: int = Field(default=200, ge=1)
     memory_strategy_keep: int = Field(default=200, ge=1)
 
+    # --- Agent loop (Phase 10; every stage observable, graceful shutdown) ---
+    agent_symbols: str = Field(default="EURUSD")
+    agent_interval_s: float = Field(default=60.0, ge=0)
+    agent_candle_count: int = Field(default=50, ge=5, le=5000)
+
+    def agent_symbol_list(self) -> list[str]:
+        """Parse `agent_symbols` CSV (safe to log)."""
+        symbols = [s.strip() for s in self.agent_symbols.split(",") if s.strip()]
+        if not symbols:
+            raise ValueError("agent_symbols must list at least one symbol")
+        return symbols
+
     def to_risk_config(self) -> RiskConfig:
         """Build the deterministic risk config (safe to log)."""
         symbols: tuple[str, ...] | None = None

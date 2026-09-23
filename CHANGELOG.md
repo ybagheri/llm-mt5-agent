@@ -3,6 +3,19 @@
 All notable changes to this project will be documented in this file.
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [0.11.0] - 2026-09-23
+
+### Added
+- Phase 10: agent orchestrator running the full 9-stage lifecycle.
+- Domain: `Stage/StageStatus/StageOutcome/AgentCycle`.
+- Application: `Observer`, `ContextBuilder`, `TradingAgent`
+  (`run_cycle` never raises; looping `run` + `stop()` for graceful shutdown;
+  per-stage memory writes; planner-optional HOLD degradation).
+- Settings: `agent_symbols/interval/candle_count`.
+- Scripts: `scripts/run_agent.py` (one-shot, `--loop`, SIGINT/SIGTERM).
+- Tests: fake-port cycle/loop/shutdown suites + gated live dry-run cycle.
+- Docs: `docs/phases/phase-10.md`, `docs/operations/agent.md`.
+
 ## [0.10.0] - 2026-09-23
 
 ### Added

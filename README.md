@@ -17,7 +17,7 @@ See [docs/architecture/overview.md](docs/architecture/overview.md) and [SECURITY
 
 ## Current status
 
-**Phase 09 — Memory System** (SQLite, compact scoped records).
+**Phase 10 — Agent Orchestrator** (9-stage observable lifecycle).
 
 - ✅ Typed Python package (`src/mt5_agent`)
 - ✅ YAML + env-var configuration with safe defaults
@@ -41,6 +41,8 @@ See [docs/architecture/overview.md](docs/architecture/overview.md) and [SECURITY
   ledger, full audit records; `scripts/check_execute.py`)
 - ✅ Memory system (`MemoryStore` + SQLite; short-term/trade/strategy/world
   scopes, retention-bounded; `scripts/check_memory.py`)
+- ✅ Agent orchestrator (`TradingAgent` 9-stage cycles, graceful shutdown,
+  memory-backed planning; `scripts/run_agent.py`)
 
 Roadmap: [ROADMAP.md](ROADMAP.md) · Changes: [CHANGELOG.md](CHANGELOG.md) · Phases: [docs/phases/](docs/phases/)
 

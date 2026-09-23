@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from mt5_agent.domain.account import AccountInfo
+from mt5_agent.domain.agent import AgentCycle, Stage, StageOutcome, StageStatus
 from mt5_agent.domain.errors import (
     MT5ConnectionError,
     MT5DataError,
@@ -61,6 +62,7 @@ from mt5_agent.domain.trading import (
 __all__ = [
     "AccountInfo",
     "AccountState",
+    "AgentCycle",
     "Candle",
     "ConnectionConfig",
     "ConnectionHealth",
@@ -97,6 +99,9 @@ __all__ = [
     "PositionPort",
     "PositionSide",
     "Setup",
+    "Stage",
+    "StageOutcome",
+    "StageStatus",
     "StrategyContext",
     "StrategyDecision",
     "StrategySignal",

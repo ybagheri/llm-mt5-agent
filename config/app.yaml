@@ -52,3 +52,8 @@ memory_short_term_keep: 100
 memory_trade_keep: 500
 memory_world_keep: 200
 memory_strategy_keep: 200
+
+# Agent loop: symbols CSV, pause between cycles, candles per observation.
+agent_symbols: EURUSD
+agent_interval_s: 60.0
+agent_candle_count: 50
