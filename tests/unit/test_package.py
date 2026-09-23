@@ -6,4 +6,4 @@ import mt5_agent
 
 
 def test_version_present() -> None:
-    assert mt5_agent.__version__ == "0.5.0"
+    assert mt5_agent.__version__ == "0.6.0"

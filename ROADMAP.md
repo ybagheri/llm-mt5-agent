@@ -9,7 +9,7 @@ Lifecycle: `OBSERVE → CONTEXT → STRATEGY → MEMORY → PLAN → SUPERVISE �
 | 02 | Market Data Layer | ✅ Done (v0.3.0) |
 | 03 | Account, Orders, Positions, History | ✅ Done (v0.4.0) |
 | 04 | Strategy Engine | ✅ Done (v0.5.0) |
-| 05 | LLM Provider Layer | ⬜ Planned |
+| 05 | LLM Provider Layer | ✅ Done (v0.6.0) |
 | 06 | Planner | ⬜ Planned |
 | 07 | Supervisor and Risk Engine | ⬜ Planned |
 | 08 | Execution Engine | ⬜ Planned |

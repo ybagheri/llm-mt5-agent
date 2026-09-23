@@ -17,7 +17,7 @@ See [docs/architecture/overview.md](docs/architecture/overview.md) and [SECURITY
 
 ## Current status
 
-**Phase 04 — Strategy Engine** (deterministic, LLM-free).
+**Phase 05 — LLM Provider Layer** (planner input only; cannot trade).
 
 - ✅ Typed Python package (`src/mt5_agent`)
 - ✅ YAML + env-var configuration with safe defaults
@@ -31,6 +31,8 @@ See [docs/architecture/overview.md](docs/architecture/overview.md) and [SECURITY
   exposure, P&L, closed-trade summaries (`scripts/check_trading.py`)
 - ✅ Strategy engine (`Strategy` ABC, `NullStrategy`, `DonchianBreakoutStrategy`,
   `StrategyService` triage; `scripts/check_strategy.py`)
+- ✅ LLM providers (`LLMProvider`; OpenAI/DeepSeek/Gemini/Ollama via config;
+  structured JSON, usage/latency tracking; `scripts/check_llm.py`)
 
 Roadmap: [ROADMAP.md](ROADMAP.md) · Changes: [CHANGELOG.md](CHANGELOG.md) · Phases: [docs/phases/](docs/phases/)
 

@@ -19,4 +19,7 @@ mt5_default_candles: 100
 # mt5_server: null
 
 llm_provider: none
+# llm_model: null
+# llm_base_url: null  # override for proxies / self-hosted gateways
 llm_timeout_s: 30.0
+# llm_api_key must come from MT5_AGENT_LLM_API_KEY env var, never this file.

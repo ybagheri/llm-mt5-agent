@@ -3,6 +3,20 @@
 All notable changes to this project will be documented in this file.
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [0.6.0] - 2026-09-23
+
+### Added
+- Phase 05: provider-agnostic LLM layer (no trading use).
+- AI: `LLMMessage/LLMRequest/LLMResponse/LLMUsage`, `LLMProvider` ABC,
+  typed errors, stdlib `HttpClient` transport.
+- Adapters: `OpenAICompatibleProvider` (openai/deepseek/ollama presets) +
+  `GeminiProvider`; structured JSON output; latency + token tracking.
+- Factory: `create_provider()/provider_from_settings()` (`none` default).
+- Settings: `llm_api_key/llm_base_url` (env-only key, masked redaction).
+- Scripts: `scripts/check_llm.py` probe.
+- Tests: model/adapter suites (fake transports) + gated live test.
+- Docs: `docs/phases/phase-05.md`, expanded `docs/ai/providers.md`.
+
 ## [0.5.0] - 2026-09-23
 
 ### Added

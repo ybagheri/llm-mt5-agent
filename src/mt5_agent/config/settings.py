@@ -65,9 +65,11 @@ class AppSettings(BaseSettings):
             server=self.mt5_server,
         )
 
-    # --- LLM (provider-agnostic; Phase 00 stores selection only) ---
+    # --- LLM (provider-agnostic; key via env only, never logged) ---
     llm_provider: str = Field(default="none")
     llm_model: str | None = Field(default=None)
+    llm_api_key: str | None = Field(default=None)
+    llm_base_url: str | None = Field(default=None)
     llm_timeout_s: float = Field(default=30.0, ge=1.0, le=300.0)
 
     @field_validator("trading_mode")
@@ -90,10 +92,10 @@ class AppSettings(BaseSettings):
         return cls(**{k: v for k, v in data.items() if v is not None})
 
     def masked(self) -> dict[str, Any]:
-        """Return settings safe for logging (never include secrets)."""
+        """Return settings safe for logging (secrets redacted)."""
         data = self.model_dump()
-        # Secrets (passwords/API keys) are never stored on this model;
-        # this hook exists so future fields are audited here.
+        if data.get("llm_api_key"):
+            data["llm_api_key"] = "***"
         return data
 
     @staticmethod
