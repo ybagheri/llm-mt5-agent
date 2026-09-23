@@ -1,0 +1,16 @@
+# Default application configuration (safe, demo-first).
+# Environment variables (MT5_AGENT_*) always override these values.
+# Secrets must NEVER be stored here — use .env / environment only.
+app_name: llm-mt5-agent
+env: development
+log_level: INFO
+log_format: json
+
+trading_mode: dry_run
+enable_live_trading: false
+
+mt5_timeout_ms: 60000
+mt5_portable: false
+
+llm_provider: none
+llm_timeout_s: 30.0

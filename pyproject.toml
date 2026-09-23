@@ -1,0 +1,81 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "llm-mt5-agent"
+version = "0.1.0"
+description = "AI-assisted MetaTrader 5 agent (demo-first, supervised LLM planner + deterministic risk)."
+readme = "README.md"
+license = { text = "MIT" }
+requires-python = ">=3.12"
+authors = [{ name = "llm-mt5-agent contributors" }]
+keywords = ["metatrader5", "trading", "llm", "risk-management"]
+classifiers = [
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+  "Topic :: Office/Business :: Financial :: Investment",
+  "Typing :: Typed",
+]
+dependencies = [
+  "pyyaml>=6.0",
+  "pydantic>=2.0",
+  "pydantic-settings>=2.0",
+  "python-dotenv>=1.0",
+]
+
+[project.optional-dependencies]
+dev = [
+  "pytest>=8.0",
+  "ruff>=0.4.0",
+  "mypy>=1.10",
+  "pre-commit>=3.0",
+  "types-PyYAML>=6.0",
+]
+mt5 = [
+  "MetaTrader5>=5.0.45; sys_platform == 'win32'",
+]
+all = [
+  "llm-mt5-agent[dev,mt5]",
+]
+
+[project.scripts]
+mt5-agent = "mt5_agent.__main__:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-ra -q"
+markers = [
+  "integration: marks tests requiring a live MT5 terminal (deselect with '-m \"not integration\"')",
+]
+
+[tool.ruff]
+target-version = "py312"
+line-length = 100
+src = ["src", "tests"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "W", "C90", "N", "S", "A", "DTZ", "TID", "Q"]
+ignore = ["S101"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["mt5_agent"]
+
+[tool.mypy]
+python_version = "3.12"
+strict = true
+warn_return_any = true
+warn_unused_configs = false
+show_error_codes = true
+exclude = ["\\.venv/", "build/", "dist/"]
+
+[tool.coverage.run]
+source = ["mt5_agent"]
+branch = true
+
+[tool.coverage.report]
+show_missing = true
