@@ -3,6 +3,18 @@
 All notable changes to this project will be documented in this file.
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [0.12.0] - 2026-09-23
+
+### Added
+- Phase 11: read-only web dashboard (stdlib only, no actions).
+- Dashboard: section models + `to_dict()`, `DashboardStateProvider`
+  (best-effort sections, day-P&L, session state), static LLM cost estimator,
+  GET-only `DashboardApp` (`/`, `/api/state`, `/health`; 405/404/400 JSON).
+- Settings: `dashboard_host/port/refresh_s`.
+- Scripts: `scripts/serve_dashboard.py` (graceful Ctrl+C).
+- Tests: provider/cost/HTTP-contract suites (ephemeral port).
+- Docs: `docs/phases/phase-11.md`, `docs/operations/dashboard.md`.
+
 ## [0.11.0] - 2026-09-23
 
 ### Added

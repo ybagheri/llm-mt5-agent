@@ -15,7 +15,7 @@ Lifecycle: `OBSERVE → CONTEXT → STRATEGY → MEMORY → PLAN → SUPERVISE �
 | 08 | Execution Engine | ✅ Done (v0.9.0) |
 | 09 | Memory System | ✅ Done (v0.10.0) |
 | 10 | Agent Orchestrator | ✅ Done (v0.11.0) |
-| 11 | Dashboard (read-only) | ⬜ Planned |
+| 11 | Dashboard (read-only) | ✅ Done (v0.12.0) |
 | 12 | Production Hardening | ⬜ Planned |
 
 Order is intentional: the system must become **reliable before autonomous**.

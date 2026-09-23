@@ -17,7 +17,7 @@ See [docs/architecture/overview.md](docs/architecture/overview.md) and [SECURITY
 
 ## Current status
 
-**Phase 10 — Agent Orchestrator** (9-stage observable lifecycle).
+**Phase 11 — Dashboard** (read-only web state).
 
 - ✅ Typed Python package (`src/mt5_agent`)
 - ✅ YAML + env-var configuration with safe defaults
@@ -43,6 +43,8 @@ See [docs/architecture/overview.md](docs/architecture/overview.md) and [SECURITY
   scopes, retention-bounded; `scripts/check_memory.py`)
 - ✅ Agent orchestrator (`TradingAgent` 9-stage cycles, graceful shutdown,
   memory-backed planning; `scripts/run_agent.py`)
+- ✅ Dashboard (read-only stdlib HTTP: account/market/agent/risk/memory/LLM;
+  `scripts/serve_dashboard.py`)
 
 Roadmap: [ROADMAP.md](ROADMAP.md) · Changes: [CHANGELOG.md](CHANGELOG.md) · Phases: [docs/phases/](docs/phases/)
 

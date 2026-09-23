@@ -106,6 +106,11 @@ class AppSettings(BaseSettings):
     agent_interval_s: float = Field(default=60.0, ge=0)
     agent_candle_count: int = Field(default=50, ge=5, le=5000)
 
+    # --- Dashboard (Phase 11; read-only, loopback by default) ---
+    dashboard_host: str = Field(default="127.0.0.1")
+    dashboard_port: int = Field(default=8080, ge=1, le=65535)
+    dashboard_refresh_s: int = Field(default=15, ge=5, le=300)
+
     def agent_symbol_list(self) -> list[str]:
         """Parse `agent_symbols` CSV (safe to log)."""
         symbols = [s.strip() for s in self.agent_symbols.split(",") if s.strip()]

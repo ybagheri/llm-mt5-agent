@@ -57,3 +57,8 @@ memory_strategy_keep: 200
 agent_symbols: EURUSD
 agent_interval_s: 60.0
 agent_candle_count: 50
+
+# Dashboard: read-only HTTP (bind loopback; no trading actions exist).
+dashboard_host: 127.0.0.1
+dashboard_port: 8080
+dashboard_refresh_s: 15
