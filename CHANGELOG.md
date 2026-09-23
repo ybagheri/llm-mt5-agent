@@ -3,6 +3,21 @@
 All notable changes to this project will be documented in this file.
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [0.8.0] - 2026-09-23
+
+### Added
+- Phase 07: Supervisor + deterministic risk engine (safety boundary).
+- Risk: 13 `ViolationCode`s, `ValidationResult`, `RiskConfig`/`TradingSession`,
+  `RiskContext`/`DecisionRecord`, 13 one-concern `RiskRule`s, `RiskEngine`,
+  `Supervisor` (pure `check()` + recording `review()` with ledger).
+- Rules: max risk/daily-loss/positions/exposure, allowlist, UTC sessions,
+  spread cap, mandatory SL/TP, min stop distance, duplicates, cooldowns,
+  account safety. Rejection over correction; abstention documented.
+- Settings: `risk_*` block + `to_risk_config()` (symbols/sessions parsing).
+- Scripts: `scripts/check_risk.py` live-state probe (never executes).
+- Tests: per-rule boundaries + supervisor ledger suites + settings parsing.
+- Docs: `docs/phases/phase-07.md`, expanded `docs/risk/rules.md`.
+
 ## [0.7.0] - 2026-09-23
 
 ### Added

@@ -62,3 +62,22 @@ def test_mt5_path_and_connection_config(monkeypatch: pytest.MonkeyPatch) -> None
     assert cfg.path == "C:/mt5/terminal64.exe"
     assert cfg.login == 1
     assert cfg.server == "S"
+
+
+def test_risk_config_defaults_and_parsing() -> None:
+    s = AppSettings()
+    cfg = s.to_risk_config()
+    assert cfg.max_risk_pct_per_trade == 1.0
+    assert cfg.allowed_symbols is None
+    assert len(cfg.allowed_sessions) == 1
+    s2 = AppSettings(risk_allowed_symbols="EURUSD, XAUUSD", risk_allowed_sessions="8-18")
+    cfg2 = s2.to_risk_config()
+    assert cfg2.allowed_symbols == ("EURUSD", "XAUUSD")
+    assert cfg2.allowed_sessions[0].start_hour == 8
+
+
+def test_risk_session_spec_validation() -> None:
+    with pytest.raises(ValueError):
+        AppSettings(risk_allowed_sessions="nope").to_risk_config()
+    with pytest.raises(ValueError):
+        AppSettings(risk_allowed_sessions="10-10").to_risk_config()

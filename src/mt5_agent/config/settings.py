@@ -20,6 +20,7 @@ from pydantic import Field, field_validator, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 from mt5_agent.domain.terminal import ConnectionConfig
+from mt5_agent.risk.config import RiskConfig, TradingSession
 
 TradingMode = Literal["dry_run", "demo", "live"]
 LogFormat = Literal["json", "text"]
@@ -72,6 +73,47 @@ class AppSettings(BaseSettings):
     llm_base_url: str | None = Field(default=None)
     llm_timeout_s: float = Field(default=30.0, ge=1.0, le=300.0)
 
+    # --- Risk limits (deterministic; the LLM can never override these) ---
+    risk_max_risk_pct: float = Field(default=1.0, gt=0, le=100)
+    risk_max_daily_loss_pct: float = Field(default=3.0, gt=0, le=100)
+    risk_max_positions: int = Field(default=3, ge=1)
+    risk_max_exposure: float = Field(default=1.0, gt=0)
+    risk_allowed_symbols: str | None = Field(default=None)
+    risk_allowed_sessions: str = Field(default="0-24")
+    risk_max_spread_points: float | None = Field(default=None)
+    risk_require_stop_loss: bool = Field(default=True)
+    risk_require_take_profit: bool = Field(default=True)
+    risk_min_stop_points: float = Field(default=0.0, ge=0)
+    risk_duplicate_window_s: float = Field(default=600.0, ge=0)
+    risk_cooldown_s: float = Field(default=60.0, ge=0)
+    risk_min_margin_level_pct: float = Field(default=100.0, gt=0)
+
+    def to_risk_config(self) -> RiskConfig:
+        """Build the deterministic risk config (safe to log)."""
+        symbols: tuple[str, ...] | None = None
+        if self.risk_allowed_symbols and self.risk_allowed_symbols.strip():
+            symbols = (
+                tuple(s.strip() for s in self.risk_allowed_symbols.split(",") if s.strip()) or None
+            )
+        sessions = tuple(
+            TradingSession(start, end) for start, end in _parse_sessions(self.risk_allowed_sessions)
+        )
+        return RiskConfig(
+            max_risk_pct_per_trade=self.risk_max_risk_pct,
+            max_daily_loss_pct=self.risk_max_daily_loss_pct,
+            max_open_positions=self.risk_max_positions,
+            max_exposure_volume=self.risk_max_exposure,
+            allowed_symbols=symbols,
+            allowed_sessions=sessions,
+            max_spread_points=self.risk_max_spread_points,
+            require_stop_loss=self.risk_require_stop_loss,
+            require_take_profit=self.risk_require_take_profit,
+            min_stop_points=self.risk_min_stop_points,
+            duplicate_window_s=self.risk_duplicate_window_s,
+            cooldown_s=self.risk_cooldown_s,
+            min_margin_level_pct=self.risk_min_margin_level_pct,
+        )
+
     @field_validator("trading_mode")
     @classmethod
     def _normalize_trading_mode(cls, v: str) -> str:
@@ -101,6 +143,23 @@ class AppSettings(BaseSettings):
     @staticmethod
     def default_config_path() -> Path:
         return Path("config/app.yaml")
+
+
+def _parse_sessions(spec: str) -> list[tuple[int, int]]:
+    """Parse '0-24' or '7-12,13-21' into (start, end) hour pairs."""
+    pairs: list[tuple[int, int]] = []
+    for part in spec.split(","):
+        part = part.strip()
+        if not part:
+            continue
+        try:
+            start_s, end_s = part.split("-", 1)
+            pairs.append((int(start_s), int(end_s)))
+        except ValueError as exc:
+            raise ValueError(f"invalid session spec {part!r} (expected H-H)") from exc
+    if not pairs:
+        raise ValueError("at least one session is required")
+    return pairs
 
 
 __all__ = ["AppEnv", "AppSettings", "LogFormat", "TradingMode"]

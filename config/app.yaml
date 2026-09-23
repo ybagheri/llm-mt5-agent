@@ -23,3 +23,18 @@ llm_provider: none
 # llm_base_url: null  # override for proxies / self-hosted gateways
 llm_timeout_s: 30.0
 # llm_api_key must come from MT5_AGENT_LLM_API_KEY env var, never this file.
+
+# Deterministic risk limits (the LLM can never override these).
+risk_max_risk_pct: 1.0
+risk_max_daily_loss_pct: 3.0
+risk_max_positions: 3
+risk_max_exposure: 1.0
+# risk_allowed_symbols: "EURUSD,XAUUSD"  # null = all symbols allowed
+risk_allowed_sessions: "0-24"
+# risk_max_spread_points: null
+risk_require_stop_loss: true
+risk_require_take_profit: true
+risk_min_stop_points: 0.0
+risk_duplicate_window_s: 600.0
+risk_cooldown_s: 60.0
+risk_min_margin_level_pct: 100.0

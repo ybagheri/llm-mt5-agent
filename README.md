@@ -17,7 +17,7 @@ See [docs/architecture/overview.md](docs/architecture/overview.md) and [SECURITY
 
 ## Current status
 
-**Phase 06 — Planner** (advisory proposals only; cannot trade).
+**Phase 07 — Supervisor and Risk Engine** (deterministic safety boundary).
 
 - ✅ Typed Python package (`src/mt5_agent`)
 - ✅ YAML + env-var configuration with safe defaults
@@ -35,6 +35,8 @@ See [docs/architecture/overview.md](docs/architecture/overview.md) and [SECURITY
   structured JSON, usage/latency tracking; `scripts/check_llm.py`)
 - ✅ Planner (`Planner`/`LLMPlanner` → validated `TradeProposal` w/ HOLD fallback;
   `scripts/check_plan.py`)
+- ✅ Supervisor + risk engine (13 deterministic rules, explicit codes,
+  duplicate/cooldown ledger; `scripts/check_risk.py`)
 
 Roadmap: [ROADMAP.md](ROADMAP.md) · Changes: [CHANGELOG.md](CHANGELOG.md) · Phases: [docs/phases/](docs/phases/)
 
