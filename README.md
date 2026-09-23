@@ -17,7 +17,7 @@ See [docs/architecture/overview.md](docs/architecture/overview.md) and [SECURITY
 
 ## Current status
 
-**Phase 03 — Account, Orders, Positions, History** (read-only).
+**Phase 04 — Strategy Engine** (deterministic, LLM-free).
 
 - ✅ Typed Python package (`src/mt5_agent`)
 - ✅ YAML + env-var configuration with safe defaults
@@ -29,6 +29,8 @@ See [docs/architecture/overview.md](docs/architecture/overview.md) and [SECURITY
   ticks, OHLC candles, symbol info, snapshots (`scripts/check_market.py`)
 - ✅ Trading state (read-only `Account/Position/Order/HistoryService`);
   exposure, P&L, closed-trade summaries (`scripts/check_trading.py`)
+- ✅ Strategy engine (`Strategy` ABC, `NullStrategy`, `DonchianBreakoutStrategy`,
+  `StrategyService` triage; `scripts/check_strategy.py`)
 
 Roadmap: [ROADMAP.md](ROADMAP.md) · Changes: [CHANGELOG.md](CHANGELOG.md) · Phases: [docs/phases/](docs/phases/)
 

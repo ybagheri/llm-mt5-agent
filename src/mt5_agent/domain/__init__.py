@@ -21,6 +21,15 @@ from mt5_agent.domain.ports import (
     OrderPort,
     PositionPort,
 )
+from mt5_agent.domain.strategy import (
+    DecisionAction,
+    Direction,
+    MarketContext,
+    Setup,
+    StrategyContext,
+    StrategyDecision,
+    StrategySignal,
+)
 from mt5_agent.domain.terminal import (
     ConnectionConfig,
     ConnectionHealth,
@@ -43,6 +52,8 @@ __all__ = [
     "ConnectionConfig",
     "ConnectionHealth",
     "Deal",
+    "DecisionAction",
+    "Direction",
     "HistoryPort",
     "MT5ConnectionError",
     "MT5ConnectionPort",
@@ -54,6 +65,7 @@ __all__ = [
     "MT5NotAvailableError",
     "MT5NotConnectedError",
     "MT5SymbolNotFoundError",
+    "MarketContext",
     "MarketDataPort",
     "MarketSnapshot",
     "Order",
@@ -61,6 +73,10 @@ __all__ = [
     "Position",
     "PositionPort",
     "PositionSide",
+    "Setup",
+    "StrategyContext",
+    "StrategyDecision",
+    "StrategySignal",
     "SymbolInfo",
     "TerminalInfo",
     "Tick",

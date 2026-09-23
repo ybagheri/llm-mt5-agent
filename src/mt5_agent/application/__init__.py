@@ -8,6 +8,7 @@ from mt5_agent.application.history_service import HistoryService
 from mt5_agent.application.market_service import MarketService
 from mt5_agent.application.order_service import OrderService
 from mt5_agent.application.position_service import PositionService
+from mt5_agent.application.strategy_service import StrategyService, triage
 
 __all__ = [
     "AccountService",
@@ -17,4 +18,6 @@ __all__ = [
     "OrderService",
     "PositionService",
     "RetryPolicy",
+    "StrategyService",
+    "triage",
 ]

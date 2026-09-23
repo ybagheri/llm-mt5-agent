@@ -3,6 +3,21 @@
 All notable changes to this project will be documented in this file.
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [0.5.0] - 2026-09-23
+
+### Added
+- Phase 04: deterministic strategy engine (LLM-free).
+- Domain: `Direction/DecisionAction/Setup/MarketContext(=StrategyContext)/
+  StrategySignal/StrategyDecision`.
+- Strategies: `Strategy` ABC, observation-only `NullStrategy`,
+  extensible `MeasureMoveStrategy` + concrete `DonchianBreakoutStrategy`
+  (validated `MeasureMoveParams`, confirm/confidence/setup hooks).
+- Application: `StrategyService` fan-out + `triage` (CANDIDATE/OBSERVE/SKIP,
+  per-strategy failure containment).
+- Scripts: `scripts/check_strategy.py` live-signal probe.
+- Tests: model/synthetic-breakout/service suites + gated live test.
+- Docs: `docs/phases/phase-04.md`, expanded `docs/strategy/engine.md`.
+
 ## [0.4.0] - 2026-09-23
 
 ### Added

@@ -8,7 +8,7 @@ Lifecycle: `OBSERVE → CONTEXT → STRATEGY → MEMORY → PLAN → SUPERVISE �
 | 01 | MT5 Connectivity | ✅ Done (v0.2.0) |
 | 02 | Market Data Layer | ✅ Done (v0.3.0) |
 | 03 | Account, Orders, Positions, History | ✅ Done (v0.4.0) |
-| 04 | Strategy Engine | ⬜ Planned |
+| 04 | Strategy Engine | ✅ Done (v0.5.0) |
 | 05 | LLM Provider Layer | ⬜ Planned |
 | 06 | Planner | ⬜ Planned |
 | 07 | Supervisor and Risk Engine | ⬜ Planned |
