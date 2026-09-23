@@ -17,7 +17,7 @@ See [docs/architecture/overview.md](docs/architecture/overview.md) and [SECURITY
 
 ## Current status
 
-**Phase 07 — Supervisor and Risk Engine** (deterministic safety boundary).
+**Phase 08 — Execution Engine** (dry-run first; live dual-gated).
 
 - ✅ Typed Python package (`src/mt5_agent`)
 - ✅ YAML + env-var configuration with safe defaults
@@ -37,6 +37,8 @@ See [docs/architecture/overview.md](docs/architecture/overview.md) and [SECURITY
   `scripts/check_plan.py`)
 - ✅ Supervisor + risk engine (13 deterministic rules, explicit codes,
   duplicate/cooldown ledger; `scripts/check_risk.py`)
+- ✅ Execution engine (approved-only, dry-run/demo/live gates, idempotent
+  ledger, full audit records; `scripts/check_execute.py`)
 
 Roadmap: [ROADMAP.md](ROADMAP.md) · Changes: [CHANGELOG.md](CHANGELOG.md) · Phases: [docs/phases/](docs/phases/)
 

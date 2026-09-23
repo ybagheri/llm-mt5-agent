@@ -56,6 +56,7 @@ def map_account_info(raw: Any) -> AccountInfo:
             profit=float(_get(data, "profit", default=0.0) or 0.0),
             leverage=int(_get(data, "leverage", default=0) or 0),
             trade_allowed=bool(_get(data, "trade_allowed", default=False)),
+            trade_mode=int(_get(data, "trade_mode", default=0) or 0),
             name=str(_get(data, "name", default="") or ""),
         )
     except (TypeError, ValueError) as exc:

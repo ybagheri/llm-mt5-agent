@@ -38,3 +38,10 @@ risk_min_stop_points: 0.0
 risk_duplicate_window_s: 600.0
 risk_cooldown_s: 60.0
 risk_min_margin_level_pct: 100.0
+
+# Execution: DRY_RUN simulates everything; DEMO sends real demo orders;
+# LIVE is blocked unless MT5_AGENT_ENABLE_LIVE_TRADING=true.
+execution_mode: dry_run
+execution_default_volume: 0.01
+execution_magic: 0
+execution_deviation: 20

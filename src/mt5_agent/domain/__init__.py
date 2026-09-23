@@ -13,6 +13,12 @@ from mt5_agent.domain.errors import (
     MT5NotConnectedError,
     MT5SymbolNotFoundError,
 )
+from mt5_agent.domain.execution import (
+    ExecutionMode,
+    ExecutionRecord,
+    ExecutionStatus,
+    OrderRequest,
+)
 from mt5_agent.domain.market import Candle, MarketSnapshot, SymbolInfo, Tick, Timeframe
 from mt5_agent.domain.planning import (
     MemoryNote,
@@ -60,6 +66,9 @@ __all__ = [
     "Deal",
     "DecisionAction",
     "Direction",
+    "ExecutionMode",
+    "ExecutionRecord",
+    "ExecutionStatus",
     "HistoryPort",
     "MT5ConnectionError",
     "MT5ConnectionPort",
@@ -77,6 +86,7 @@ __all__ = [
     "MemoryNote",
     "Order",
     "OrderPort",
+    "OrderRequest",
     "PlannerInput",
     "Position",
     "PositionPort",

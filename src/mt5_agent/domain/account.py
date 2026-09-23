@@ -19,6 +19,7 @@ class AccountInfo:
     profit: float
     leverage: int = 0
     trade_allowed: bool = False
+    trade_mode: int = 0
     name: str = ""
 
 

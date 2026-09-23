@@ -81,3 +81,11 @@ def test_risk_session_spec_validation() -> None:
         AppSettings(risk_allowed_sessions="nope").to_risk_config()
     with pytest.raises(ValueError):
         AppSettings(risk_allowed_sessions="10-10").to_risk_config()
+
+
+def test_execution_live_requires_opt_in() -> None:
+    with pytest.raises(ValueError, match="Live trading is never enabled"):
+        AppSettings(execution_mode="live", enable_live_trading=False)
+    s = AppSettings(execution_mode="live", enable_live_trading=True)
+    assert s.execution_mode == "live"
+    assert AppSettings().execution_mode == "dry_run"

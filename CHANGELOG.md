@@ -3,6 +3,20 @@
 All notable changes to this project will be documented in this file.
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [0.9.0] - 2026-09-23
+
+### Added
+- Phase 08: execution engine for approved decisions (no direct proposals).
+- Domain: `ExecutionMode/OrderRequest/ExecutionStatus/ExecutionRecord`;
+  `AccountInfo.trade_mode`.
+- Execution: `TradeExecutor` ABC + `MT5TradeExecutor`
+  (validate→prepare→order_check→execute→verify→record, idempotency ledger,
+  DRY_RUN default, DEMO-vs-REAL guard, LIVE dual gate).
+- Settings: `execution_*` block + live-requires-opt-in validation.
+- Scripts: `scripts/check_execute.py` (dry_run default, demo explicit).
+- Tests: execution-model + full lifecycle suites (fakes).
+- Docs: `docs/phases/phase-08.md`, `docs/operations/execution.md`.
+
 ## [0.8.0] - 2026-09-23
 
 ### Added

@@ -1,3 +1,7 @@
-"""execution layer (Phase 00 placeholder - no trading logic yet)."""
+"""Execution layer: approved decisions only (Supervisor gate enforced)."""
 
-__all__: list[str] = []
+from __future__ import annotations
+
+from mt5_agent.execution.executor import MT5TradeExecutor, TradeExecutor
+
+__all__ = ["MT5TradeExecutor", "TradeExecutor"]

@@ -12,7 +12,7 @@ Lifecycle: `OBSERVE → CONTEXT → STRATEGY → MEMORY → PLAN → SUPERVISE �
 | 05 | LLM Provider Layer | ✅ Done (v0.6.0) |
 | 06 | Planner | ✅ Done (v0.7.0) |
 | 07 | Supervisor and Risk Engine | ✅ Done (v0.8.0) |
-| 08 | Execution Engine | ⬜ Planned |
+| 08 | Execution Engine | ✅ Done (v0.9.0) |
 | 09 | Memory System | ⬜ Planned |
 | 10 | Agent Orchestrator | ⬜ Planned |
 | 11 | Dashboard (read-only) | ⬜ Planned |

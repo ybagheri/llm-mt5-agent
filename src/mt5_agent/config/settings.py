@@ -88,6 +88,12 @@ class AppSettings(BaseSettings):
     risk_cooldown_s: float = Field(default=60.0, ge=0)
     risk_min_margin_level_pct: float = Field(default=100.0, gt=0)
 
+    # --- Execution (DRY_RUN default; LIVE needs explicit dual opt-in) ---
+    execution_mode: Literal["dry_run", "demo", "live"] = Field(default="dry_run")
+    execution_default_volume: float = Field(default=0.01, gt=0)
+    execution_magic: int = Field(default=0, ge=0)
+    execution_deviation: int = Field(default=20, ge=0)
+
     def to_risk_config(self) -> RiskConfig:
         """Build the deterministic risk config (safe to log)."""
         symbols: tuple[str, ...] | None = None
@@ -114,7 +120,7 @@ class AppSettings(BaseSettings):
             min_margin_level_pct=self.risk_min_margin_level_pct,
         )
 
-    @field_validator("trading_mode")
+    @field_validator("trading_mode", "execution_mode")
     @classmethod
     def _normalize_trading_mode(cls, v: str) -> str:
         return v.lower().strip()
@@ -124,6 +130,11 @@ class AppSettings(BaseSettings):
         if self.trading_mode == "live" and not self.enable_live_trading:
             raise ValueError(
                 "trading_mode='live' requires MT5_AGENT_ENABLE_LIVE_TRADING=true. "
+                "Live trading is never enabled by default."
+            )
+        if self.execution_mode == "live" and not self.enable_live_trading:
+            raise ValueError(
+                "execution_mode='live' requires MT5_AGENT_ENABLE_LIVE_TRADING=true. "
                 "Live trading is never enabled by default."
             )
         return self
