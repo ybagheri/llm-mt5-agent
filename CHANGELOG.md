@@ -3,6 +3,20 @@
 All notable changes to this project will be documented in this file.
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [0.4.0] - 2026-09-23
+
+### Added
+- Phase 03: read-only account/orders/positions/history (no execution).
+- Domain: `Position/Order/Deal/TradeResult/AccountState/PositionSide` +
+  `PositionPort/OrderPort/HistoryPort`.
+- Infrastructure: `MT5TradingDataAdapter` (`positions_get/orders_get/
+  history_deals_get/history_orders_get`), trading mappers.
+- Application: `AccountService/PositionService/OrderService/HistoryService`
+  (exposure/net/floating, realized P&L, closed-trade grouping).
+- Scripts: `scripts/check_trading.py` state probe.
+- Tests: trading model/mapper/adapter suites + gated live state test.
+- Docs: `docs/phases/phase-03.md`, `docs/mt5/trading-state.md`.
+
 ## [0.3.0] - 2026-09-23
 
 ### Added

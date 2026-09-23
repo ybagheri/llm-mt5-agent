@@ -1,4 +1,4 @@
-"""Domain ports (interfaces) for MT5 connectivity and market data.
+"""Domain ports (interfaces) for MT5 connectivity, market and trading data.
 
 The domain defines *what* is needed; `infrastructure/mt5/` provides the
 MetaTrader5-backed implementations. Domain code never imports MetaTrader5.
@@ -7,6 +7,7 @@ MetaTrader5-backed implementations. Domain code never imports MetaTrader5.
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
+from datetime import datetime
 
 from mt5_agent.domain.account import AccountInfo
 from mt5_agent.domain.market import Candle, MarketSnapshot, SymbolInfo, Tick, Timeframe
@@ -16,6 +17,7 @@ from mt5_agent.domain.terminal import (
     MT5Credentials,
     TerminalInfo,
 )
+from mt5_agent.domain.trading import Deal, Order, Position
 
 
 class MT5ConnectionPort(ABC):
@@ -91,4 +93,52 @@ class MarketDataPort(ABC):
         ...
 
 
-__all__ = ["MT5ConnectionPort", "MarketDataPort"]
+class PositionPort(ABC):
+    """Abstract open-positions source (read-only)."""
+
+    @abstractmethod
+    def get_open_positions(self, symbol: str | None = None) -> list[Position]:
+        """Return open positions, optionally filtered by symbol."""
+        ...
+
+
+class OrderPort(ABC):
+    """Abstract pending-orders source (read-only)."""
+
+    @abstractmethod
+    def get_pending_orders(self, symbol: str | None = None) -> list[Order]:
+        """Return pending orders, optionally filtered by symbol."""
+        ...
+
+
+class HistoryPort(ABC):
+    """Abstract trading-history source (read-only)."""
+
+    @abstractmethod
+    def get_deals(
+        self,
+        date_from: datetime,
+        date_to: datetime,
+        symbol: str | None = None,
+    ) -> list[Deal]:
+        """Return historical deals in [date_from, date_to]."""
+        ...
+
+    @abstractmethod
+    def get_history_orders(
+        self,
+        date_from: datetime,
+        date_to: datetime,
+        symbol: str | None = None,
+    ) -> list[Order]:
+        """Return historical orders in [date_from, date_to]."""
+        ...
+
+
+__all__ = [
+    "HistoryPort",
+    "MT5ConnectionPort",
+    "MarketDataPort",
+    "OrderPort",
+    "PositionPort",
+]

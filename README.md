@@ -17,7 +17,7 @@ See [docs/architecture/overview.md](docs/architecture/overview.md) and [SECURITY
 
 ## Current status
 
-**Phase 02 — Market Data Layer** (read-only; no trading functionality).
+**Phase 03 — Account, Orders, Positions, History** (read-only).
 
 - ✅ Typed Python package (`src/mt5_agent`)
 - ✅ YAML + env-var configuration with safe defaults
@@ -27,6 +27,8 @@ See [docs/architecture/overview.md](docs/architecture/overview.md) and [SECURITY
   terminal/account snapshots, health checks, reconnect (`scripts/check_mt5.py`)
 - ✅ Market data (`MarketDataPort` + `MT5MarketDataAdapter` + `MarketService`);
   ticks, OHLC candles, symbol info, snapshots (`scripts/check_market.py`)
+- ✅ Trading state (read-only `Account/Position/Order/HistoryService`);
+  exposure, P&L, closed-trade summaries (`scripts/check_trading.py`)
 
 Roadmap: [ROADMAP.md](ROADMAP.md) · Changes: [CHANGELOG.md](CHANGELOG.md) · Phases: [docs/phases/](docs/phases/)
 
