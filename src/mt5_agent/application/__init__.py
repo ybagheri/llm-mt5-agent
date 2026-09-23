@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
-from mt5_agent.application.connection_service import ConnectionService
+from mt5_agent.application.connection_service import ConnectionService, RetryPolicy
+from mt5_agent.application.market_service import MarketService
 
-__all__ = ["ConnectionService"]
+__all__ = ["ConnectionService", "MarketService", "RetryPolicy"]

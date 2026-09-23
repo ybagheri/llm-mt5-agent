@@ -1,7 +1,7 @@
-"""Domain ports (interfaces) for MT5 connectivity.
+"""Domain ports (interfaces) for MT5 connectivity and market data.
 
 The domain defines *what* is needed; `infrastructure/mt5/` provides the
-MetaTrader5-backed implementation. Domain code never imports MetaTrader5.
+MetaTrader5-backed implementations. Domain code never imports MetaTrader5.
 """
 
 from __future__ import annotations
@@ -9,6 +9,7 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 
 from mt5_agent.domain.account import AccountInfo
+from mt5_agent.domain.market import Candle, MarketSnapshot, SymbolInfo, Tick, Timeframe
 from mt5_agent.domain.terminal import (
     ConnectionConfig,
     ConnectionHealth,
@@ -55,4 +56,39 @@ class MT5ConnectionPort(ABC):
         ...
 
 
-__all__ = ["MT5ConnectionPort"]
+class MarketDataPort(ABC):
+    """Abstract market-data source. Strategies consume domain models only."""
+
+    @abstractmethod
+    def get_tick(self, symbol: str) -> Tick:
+        """Return the latest tick; raises on unknown symbol / fetch failure."""
+        ...
+
+    @abstractmethod
+    def get_candles(
+        self,
+        symbol: str,
+        timeframe: Timeframe,
+        count: int = 100,
+        start_pos: int = 0,
+    ) -> list[Candle]:
+        """Return newest-last candles; raises on invalid args / fetch failure."""
+        ...
+
+    @abstractmethod
+    def get_symbol_info(self, symbol: str) -> SymbolInfo:
+        """Return symbol metadata; raises on unknown symbol."""
+        ...
+
+    @abstractmethod
+    def get_snapshot(
+        self,
+        symbol: str,
+        timeframe: Timeframe,
+        count: int = 100,
+    ) -> MarketSnapshot:
+        """Compose tick + candles + symbol info (tick/symbol best-effort)."""
+        ...
+
+
+__all__ = ["MT5ConnectionPort", "MarketDataPort"]

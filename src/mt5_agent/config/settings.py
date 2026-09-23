@@ -51,6 +51,9 @@ class AppSettings(BaseSettings):
     mt5_path: str | None = Field(default=None)
     mt5_timeout_ms: int = Field(default=60_000, ge=1_000, le=600_000)
     mt5_portable: bool = Field(default=False)
+    mt5_default_symbol: str = Field(default="EURUSD")
+    mt5_default_timeframe: str = Field(default="M1")
+    mt5_default_candles: int = Field(default=100, ge=1, le=5000)
 
     def to_connection_config(self) -> ConnectionConfig:
         """Derive the non-secret MT5 connection config (safe to log)."""

@@ -3,6 +3,21 @@
 All notable changes to this project will be documented in this file.
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [0.3.0] - 2026-09-23
+
+### Added
+- Phase 02: read-only market-data layer (no trading).
+- Domain: `Tick/Candle/SymbolInfo/MarketSnapshot/Timeframe` + `MarketDataPort`;
+  `MT5MarketDataError`, `MT5SymbolNotFoundError`.
+- Infrastructure: `MT5MarketDataAdapter` (`copy_rates_from_pos/symbol_info_tick/
+  symbol_info`), market mappers (namedtuple/mapping/numpy rows -> domain, UTC),
+  timeframe resolution.
+- Application: `MarketService` (symbol/count validation, snapshot convenience).
+- Settings: `mt5_default_symbol/timeframe/candles`.
+- Scripts: `scripts/check_market.py` snapshot probe.
+- Tests: model/mapper/adapter-service suites + gated live snapshot test.
+- Docs: `docs/phases/phase-02.md`, `docs/mt5/market-data.md`.
+
 ## [0.2.0] - 2026-09-23
 
 ### Added

@@ -6,7 +6,7 @@ Lifecycle: `OBSERVE → CONTEXT → STRATEGY → MEMORY → PLAN → SUPERVISE �
 |------:|------|--------|
 | 00 | Project Foundation | ✅ Done (v0.1.0) |
 | 01 | MT5 Connectivity | ✅ Done (v0.2.0) |
-| 02 | Market Data Layer | ⬜ Planned |
+| 02 | Market Data Layer | ✅ Done (v0.3.0) |
 | 03 | Account, Orders, Positions, History | ⬜ Planned |
 | 04 | Strategy Engine | ⬜ Planned |
 | 05 | LLM Provider Layer | ⬜ Planned |
