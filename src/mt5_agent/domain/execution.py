@@ -19,11 +19,18 @@ class ExecutionMode(StrEnum):
 
 
 class ExecutionStatus(StrEnum):
-    """Terminal outcome of one execution attempt."""
+    """Outcome of one execution attempt.
+
+    SUCCESS/REJECTED/FAILED are terminal and certain. UNKNOWN means the order
+    *may* have been accepted (e.g. timeout after submission): the caller must
+    verify positions/orders before retrying with the same `client_id` and must
+    never treat UNKNOWN as proof of failure.
+    """
 
     SUCCESS = "SUCCESS"
     REJECTED = "REJECTED"
     FAILED = "FAILED"
+    UNKNOWN = "UNKNOWN"
 
 
 @dataclass(frozen=True, slots=True)

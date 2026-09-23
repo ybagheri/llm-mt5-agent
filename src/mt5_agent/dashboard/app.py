@@ -5,6 +5,7 @@ from __future__ import annotations
 import json
 import logging
 import threading
+from collections.abc import Callable
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from typing import Any
 from urllib.parse import parse_qs, urlparse
@@ -13,6 +14,14 @@ from mt5_agent.dashboard.provider import DashboardStateProvider
 from mt5_agent.domain.market import Timeframe
 
 logger = logging.getLogger(__name__)
+
+_LOOPBACK_HOSTS = ("127.0.0.1", "localhost", "::1")
+
+
+def is_loopback(host: str) -> bool:
+    """True when `host` binds loopback only (safe default for an unauthenticated UI)."""
+    return host in _LOOPBACK_HOSTS or host.startswith("127.")
+
 
 _PAGE = """<!doctype html>
 <html lang="en"><head><meta charset="utf-8">
@@ -57,9 +66,10 @@ load(); setInterval(load, refresh);
 
 
 class DashboardHandler(BaseHTTPRequestHandler):
-    """GET-only handler: `/`, `/api/state`, `/health`; everything else 404/405."""
+    """GET-only handler: `/`, `/api/state`, `/api/health`, `/health`; else 404/405."""
 
     provider: DashboardStateProvider | None = None
+    health_provider: Callable[[], dict[str, Any]] | None = None
     default_symbol: str = "EURUSD"
     refresh_s: int = 15
     server_version = "llm-mt5-agent"
@@ -77,6 +87,8 @@ class DashboardHandler(BaseHTTPRequestHandler):
             )
         elif parsed.path == "/api/state":
             self._serve_state(parsed.query)
+        elif parsed.path == "/api/health":
+            self._serve_health()
         elif parsed.path == "/health":
             self._send(200, "application/json", b'{"ok": true}')
         else:
@@ -119,6 +131,17 @@ class DashboardHandler(BaseHTTPRequestHandler):
             return
         self._send(200, "application/json", json.dumps(state.to_dict(), default=str).encode())
 
+    def _serve_health(self) -> None:
+        try:
+            if self.health_provider is None:
+                body = {"status": "UNKNOWN", "healthy": False, "components": {}}
+            else:
+                body = self.health_provider()
+        except Exception as exc:  # health endpoint must never 500 on probe failure
+            logger.warning("dashboard health build failed: %s", exc)
+            body = {"status": "UNHEALTHY", "healthy": False, "error": str(exc)}
+        self._send(200, "application/json", json.dumps(body, default=str).encode())
+
     def _send(self, status: int, content_type: str, body: bytes) -> None:
         self.send_response(status)
         self.send_header("Content-Type", content_type)
@@ -138,12 +161,14 @@ class DashboardApp:
         port: int = 8080,
         default_symbol: str = "EURUSD",
         refresh_s: int = 15,
+        health_provider: Callable[[], dict[str, Any]] | None = None,
     ) -> None:
         self._provider = provider
         self._host = host
         self._port = port
         self._default_symbol = default_symbol
         self._refresh_s = refresh_s
+        self._health_provider = health_provider
         self._server: ThreadingHTTPServer | None = None
         self._thread: threading.Thread | None = None
 
@@ -159,6 +184,12 @@ class DashboardApp:
             (DashboardHandler,),
             {
                 "provider": self._provider,
+                # staticmethod: plain functions as class attrs would bind `self`.
+                "health_provider": (
+                    staticmethod(self._health_provider)
+                    if self._health_provider is not None
+                    else None
+                ),
                 "default_symbol": self._default_symbol,
                 "refresh_s": self._refresh_s,
             },
@@ -168,6 +199,17 @@ class DashboardApp:
             target=self._server.serve_forever, kwargs={"poll_interval": 0.2}, daemon=True
         )
         self._thread.start()
+        if not is_loopback(self._host):
+            logger.warning(
+                "dashboard bound to non-loopback address",
+                extra={
+                    "extra_fields": {
+                        "url": self.url,
+                        "hint": "no auth layer: bind loopback or put behind an "
+                        "authenticated reverse proxy (see docs/operations/hardening.md)",
+                    }
+                },
+            )
         logger.info("dashboard listening", extra={"extra_fields": {"url": self.url}})
         return self.url
 
@@ -182,4 +224,4 @@ class DashboardApp:
             self._thread = None
 
 
-__all__ = ["DashboardApp", "DashboardHandler"]
+__all__ = ["DashboardApp", "DashboardHandler", "is_loopback"]

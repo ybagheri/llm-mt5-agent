@@ -16,9 +16,10 @@ Lifecycle: `OBSERVE → CONTEXT → STRATEGY → MEMORY → PLAN → SUPERVISE �
 | 09 | Memory System | ✅ Done (v0.10.0) |
 | 10 | Agent Orchestrator | ✅ Done (v0.11.0) |
 | 11 | Dashboard (read-only) | ✅ Done (v0.12.0) |
-| 12 | Production Hardening | ⬜ Planned |
+| 12 | Production Hardening | ✅ Done (v0.13.0) |
 
 Order is intentional: the system must become **reliable before autonomous**.
 Live trading stays disabled until Phase 12 hardening + explicit opt-in.
+Phase 12 hardening is complete; live remains opt-in only.
 
 Details per phase: [docs/phases/](docs/phases/)

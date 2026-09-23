@@ -62,3 +62,7 @@ agent_candle_count: 50
 dashboard_host: 127.0.0.1
 dashboard_port: 8080
 dashboard_refresh_s: 15
+
+# Watchdog: fail-safe halt on repeated failures / stale data (never escalates).
+watchdog_max_consecutive_failures: 5
+watchdog_stale_after_s: 300.0

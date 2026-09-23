@@ -28,6 +28,7 @@ from mt5_agent.application.market_service import MarketService  # noqa: E402
 from mt5_agent.application.order_service import OrderService  # noqa: E402
 from mt5_agent.application.position_service import PositionService  # noqa: E402
 from mt5_agent.application.strategy_service import StrategyService  # noqa: E402
+from mt5_agent.application.watchdog import Watchdog, WatchdogConfig  # noqa: E402
 from mt5_agent.config.loader import load_settings  # noqa: E402
 from mt5_agent.domain.execution import ExecutionMode  # noqa: E402
 from mt5_agent.domain.market import Timeframe  # noqa: E402
@@ -130,6 +131,12 @@ def main() -> int:
             strategy_memory=strategy_memory,
             world_memory=world_memory,
             candle_count=settings.agent_candle_count,
+            watchdog=Watchdog(
+                WatchdogConfig(
+                    max_consecutive_failures=settings.watchdog_max_consecutive_failures,
+                    stale_after_s=settings.watchdog_stale_after_s,
+                )
+            ),
         )
 
         def _stop(signum: int, frame: object) -> None:  # noqa: ANN001, ANN202
@@ -176,8 +183,16 @@ def main() -> int:
         print(json.dumps({"error": str(exc)}))
         return 1
     finally:
+        # Ordered shutdown: persist memory first, then disconnect MT5 cleanly.
+        # Open positions are never touched (shutdown never closes them).
+        try:
+            cycles_done = agent.cycles_completed
+        except NameError:  # agent never constructed (startup failed before wiring)
+            cycles_done = 0
+        logger.info("agent shutting down", extra={"extra_fields": {"cycles": cycles_done}})
         store.close()
         connection_service.disconnect()
+        logger.info("agent shutdown complete")
 
 
 if __name__ == "__main__":

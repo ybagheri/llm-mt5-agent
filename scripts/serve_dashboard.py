@@ -18,6 +18,11 @@ from mt5_agent.application.connection_service import (  # noqa: E402
     ConnectionService,
     RetryPolicy,
 )
+from mt5_agent.application.health import (  # noqa: E402
+    ComponentHealth,
+    HealthService,
+    HealthStatus,
+)
 from mt5_agent.application.history_service import HistoryService  # noqa: E402
 from mt5_agent.application.market_service import MarketService  # noqa: E402
 from mt5_agent.application.order_service import OrderService  # noqa: E402
@@ -26,6 +31,8 @@ from mt5_agent.application.strategy_service import StrategyService  # noqa: E402
 from mt5_agent.config.loader import load_settings  # noqa: E402
 from mt5_agent.dashboard.app import DashboardApp  # noqa: E402
 from mt5_agent.dashboard.provider import DashboardStateProvider  # noqa: E402
+from mt5_agent.domain.market import Timeframe  # noqa: E402
+from mt5_agent.domain.memory import MemoryScope  # noqa: E402
 from mt5_agent.domain.terminal import MT5Credentials  # noqa: E402
 from mt5_agent.infrastructure.mt5.connection_adapter import (  # noqa: E402
     MT5ConnectionAdapter,
@@ -39,6 +46,50 @@ from mt5_agent.memory.memories import StrategyMemory, TradeMemory, WorldMemory  
 from mt5_agent.memory.sqlite_store import SQLiteMemoryStore  # noqa: E402
 from mt5_agent.strategies.measure_move import DonchianBreakoutStrategy  # noqa: E402
 from mt5_agent.strategies.null_strategy import NullStrategy  # noqa: E402
+
+
+def _build_health(conn, market, store, settings) -> HealthService:  # noqa: ANN001, ANN202
+    """Aggregate probes for `GET /api/health` (each best-effort, never raises)."""
+
+    def mt5_probe() -> ComponentHealth:
+        health = conn.check_health()
+        if health.connected:
+            return ComponentHealth("mt5", HealthStatus.HEALTHY, "terminal connected")
+        return ComponentHealth("mt5", HealthStatus.UNHEALTHY, health.error or "disconnected")
+
+    def market_probe() -> ComponentHealth:
+        snapshot = market.get_snapshot(
+            settings.mt5_default_symbol, Timeframe.M1, count=5
+        )
+        if not snapshot.candles:
+            return ComponentHealth("market", HealthStatus.DEGRADED, "no candles returned")
+        return ComponentHealth("market", HealthStatus.HEALTHY, "snapshot ok")
+
+    def memory_probe() -> ComponentHealth:
+        store.count(MemoryScope.SHORT_TERM)
+        return ComponentHealth("memory", HealthStatus.HEALTHY, "sqlite reachable")
+
+    def llm_probe() -> ComponentHealth:
+        if settings.llm_provider == "none":
+            return ComponentHealth(
+                "llm", HealthStatus.DEGRADED, "not configured (HOLD fallback active)"
+            )
+        return ComponentHealth("llm", HealthStatus.HEALTHY, "configured (HOLD on failure)")
+
+    def executor_probe() -> ComponentHealth:
+        return ComponentHealth(
+            "executor", HealthStatus.HEALTHY, f"mode={settings.execution_mode}"
+        )
+
+    return HealthService(
+        {
+            "mt5": mt5_probe,
+            "market": market_probe,
+            "memory": memory_probe,
+            "llm": llm_probe,
+            "executor": executor_probe,
+        }
+    )
 
 
 def main() -> int:
@@ -92,12 +143,14 @@ def main() -> int:
             version=__version__,
             trading_mode=settings.trading_mode,
         )
+        health = _build_health(conn, market, store, settings)
         app = DashboardApp(
             provider,
             host=args.host or settings.dashboard_host,
             port=args.port or settings.dashboard_port,
             default_symbol=settings.mt5_default_symbol,
             refresh_s=settings.dashboard_refresh_s,
+            health_provider=lambda: health.check().to_dict(),
         )
         url = app.start()
         print(f"Dashboard (read-only): {url}")

@@ -20,6 +20,7 @@ from mt5_agent.application.market_service import MarketService
 from mt5_agent.application.order_service import OrderService
 from mt5_agent.application.position_service import PositionService
 from mt5_agent.application.strategy_service import StrategyService
+from mt5_agent.application.watchdog import Watchdog
 from mt5_agent.domain.agent import (
     AgentCycle,
     Stage,
@@ -32,6 +33,7 @@ from mt5_agent.domain.planning import MemoryNote, PlannerInput, TradeAction
 from mt5_agent.domain.strategy import MarketContext
 from mt5_agent.domain.trading import AccountState, Order, Position
 from mt5_agent.execution.executor import MT5TradeExecutor
+from mt5_agent.logging_utils import audit
 from mt5_agent.memory.memories import (
     ShortTermMemory,
     StrategyMemory,
@@ -151,6 +153,7 @@ class TradingAgent:
         strategy_memory: StrategyMemory | None = None,
         world_memory: WorldMemory | None = None,
         candle_count: int = 50,
+        watchdog: Watchdog | None = None,
     ) -> None:
         self._observer = observer
         self._context_builder = context_builder
@@ -162,6 +165,7 @@ class TradingAgent:
         self._strategy_memory = strategy_memory
         self._world_memory = world_memory
         self._candle_count = candle_count
+        self._watchdog = watchdog
         self._stop = threading.Event()
         self._cycles = 0
 
@@ -169,12 +173,31 @@ class TradingAgent:
     def cycles_completed(self) -> int:
         return self._cycles
 
+    @property
+    def watchdog(self) -> Watchdog | None:
+        return self._watchdog
+
     def stop(self) -> None:
         """Request graceful shutdown (loop exits after the current cycle)."""
         self._stop.set()
 
     def run_cycle(self, symbol: str, timeframe: Timeframe) -> AgentCycle:
         """Execute one full lifecycle; never raises (failures become outcomes)."""
+        if self._watchdog is not None and self._watchdog.should_halt():
+            logger.warning(
+                "agent cycle refused: watchdog halted new activity",
+                extra={"extra_fields": {"symbol": symbol}},
+            )
+            started = datetime.now(UTC)
+            return AgentCycle(
+                new_cycle_id(),
+                symbol,
+                timeframe.value,
+                (StageOutcome(Stage.OBSERVE, StageStatus.SKIPPED, "watchdog halt: no new cycles"),),
+                started,
+                datetime.now(UTC),
+                "watchdog halt",
+            )
         cycle_id = new_cycle_id()
         started = datetime.now(UTC)
         outcomes: list[StageOutcome] = []
@@ -183,7 +206,7 @@ class TradingAgent:
         try:
             self._observe(symbol, timeframe, outcomes, state)
             if _failed(outcomes):
-                return self._finish(cycle_id, symbol, timeframe, started, outcomes, error)
+                return self._finish_watchdog(cycle_id, symbol, timeframe, started, outcomes, error)
             self._strategy_memory_stage(outcomes, state)
             self._plan_stage(outcomes, state)
             self._supervise_stage(outcomes, state)
@@ -193,7 +216,7 @@ class TradingAgent:
         except Exception as exc:  # last-resort guard: cycle reports, never raises
             error = f"{type(exc).__name__}: {exc}"
             logger.exception("agent cycle failed")
-        return self._finish(cycle_id, symbol, timeframe, started, outcomes, error)
+        return self._finish_watchdog(cycle_id, symbol, timeframe, started, outcomes, error)
 
     def run(
         self,
@@ -208,6 +231,9 @@ class TradingAgent:
         index = 0
         while not self._stop.is_set():
             if max_cycles is not None and len(cycles) >= max_cycles:
+                break
+            if self._watchdog is not None and self._watchdog.should_halt():
+                logger.warning("agent loop halted by watchdog: no new cycles started")
                 break
             symbol = symbols[index % len(symbols)]
             cycles.append(self.run_cycle(symbol, timeframe))
@@ -230,6 +256,8 @@ class TradingAgent:
         try:
             observation = self._observer.observe(symbol, timeframe, count=self._candle_count)
             state["observation"] = observation
+            if self._watchdog is not None:
+                self._watchdog.note_observation(observation.observed_at)
             outcomes.append(
                 StageOutcome(
                     Stage.OBSERVE,
@@ -385,6 +413,24 @@ class TradingAgent:
         except Exception as exc:
             outcomes.append(StageOutcome(Stage.MEMORY_UPDATE, StageStatus.FAILED, str(exc)))
 
+    def _finish_watchdog(
+        self,
+        cycle_id: str,
+        symbol: str,
+        timeframe: Timeframe,
+        started: datetime,
+        outcomes: list[StageOutcome],
+        error: str,
+    ) -> AgentCycle:
+        """Finish a cycle and report its outcome to the watchdog (if any)."""
+        cycle = self._finish(cycle_id, symbol, timeframe, started, outcomes, error)
+        if self._watchdog is not None:
+            if cycle.ok:
+                self._watchdog.note_success("cycle")
+            else:
+                self._watchdog.note_failure("cycle", cycle.error or "cycle degraded")
+        return cycle
+
     def _finish(
         self,
         cycle_id: str,
@@ -395,11 +441,21 @@ class TradingAgent:
         error: str,
     ) -> AgentCycle:
         finished = datetime.now(UTC)
+        ok = not error and not _failed(outcomes)
         logger.info(
             "agent cycle %s %s",
             cycle_id,
-            "ok" if not error and not _failed(outcomes) else "degraded",
+            "ok" if ok else "degraded",
             extra={"extra_fields": {"cycle": cycle_id, "symbol": symbol, "stages": len(outcomes)}},
+        )
+        audit(
+            logger,
+            "agent_cycle",
+            cycle=cycle_id,
+            symbol=symbol,
+            ok=ok,
+            stages=len(outcomes),
+            error=error,
         )
         return AgentCycle(
             cycle_id, symbol, timeframe.value, tuple(outcomes), started, finished, error

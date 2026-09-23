@@ -111,6 +111,10 @@ class AppSettings(BaseSettings):
     dashboard_port: int = Field(default=8080, ge=1, le=65535)
     dashboard_refresh_s: int = Field(default=15, ge=5, le=300)
 
+    # --- Watchdog (Phase 12; fail-safe: halts new activity, never escalates) ---
+    watchdog_max_consecutive_failures: int = Field(default=5, ge=1, le=100)
+    watchdog_stale_after_s: float = Field(default=300.0, ge=0)
+
     def agent_symbol_list(self) -> list[str]:
         """Parse `agent_symbols` CSV (safe to log)."""
         symbols = [s.strip() for s in self.agent_symbols.split(",") if s.strip()]

@@ -3,6 +3,31 @@
 All notable changes to this project will be documented in this file.
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [0.13.0] - 2026-09-23
+
+### Added
+- Phase 12: production hardening (no architecture change, no live trading).
+- Logging: `SecretScrubbingFilter` (defense-in-depth redaction) + `audit()`
+  events (`agent_cycle`, `order_submitted`, `order_result`, reconnect).
+- Health: `HealthStatus` (HEALTHY/DEGRADED/UNHEALTHY), `HealthService`
+  (never-raising probes, worst-wins), `GET /api/health` on the dashboard
+  (`/health` liveness unchanged); `serve_dashboard.py` wires live probes.
+- Retry: `RetryPolicy` backoff (`backoff_factor`, `max_delay_seconds`,
+  `delay_for()`; default preserves fixed delay).
+- Reconnect: `reconnect(..., verify=...)` forces post-reconnect re-verification
+  (account/positions/orders) before any execution.
+- Execution: `ExecutionStatus.UNKNOWN` for ambiguous (timeout/transport)
+  outcomes; verify-before-retry with the same `client_id`; disconnect records
+  guide safe retry.
+- Watchdog: halt-only `Watchdog` (consecutive-failure trip, stale-data
+  degrade, manual reset); agent refuses new cycles + breaks `run()` when
+  halted; wired in `run_agent.py` via new `watchdog_*` settings.
+- Dashboard: non-loopback bind warning (`is_loopback()`); stays read-only.
+- CI: `pip-audit` dependency audit; lint now covers `scripts/`.
+- Tests: `tests/unit/test_hardening.py` (scrub/audit/health/backoff/
+  reconnect/UNKNOWN/LLM-HOLD/watchdog/halt/health-endpoint/config gates).
+- Docs: `docs/phases/phase-12.md`, `docs/operations/hardening.md` runbook.
+
 ## [0.12.0] - 2026-09-23
 
 ### Added

@@ -17,14 +17,15 @@ See [docs/architecture/overview.md](docs/architecture/overview.md) and [SECURITY
 
 ## Current status
 
-**Phase 11 — Dashboard** (read-only web state).
+**Phase 12 — Production Hardening** (safe, observable, recoverable).
 
 - ✅ Typed Python package (`src/mt5_agent`)
 - ✅ YAML + env-var configuration with safe defaults
-- ✅ Structured (JSON) logging
-- ✅ Ruff / MyPy / Pytest / pre-commit / GitHub Actions CI
+- ✅ Structured (JSON) logging with secret scrubbing + audit events
+- ✅ Ruff / MyPy / Pytest / pre-commit / GitHub Actions CI (incl. dependency audit)
 - ✅ MT5 connection layer (`MT5ConnectionPort` + adapter + `ConnectionService`);
-  terminal/account snapshots, health checks, reconnect (`scripts/check_mt5.py`)
+  terminal/account snapshots, health checks, reconnect with backoff + post-reconnect
+  verification (`scripts/check_mt5.py`)
 - ✅ Market data (`MarketDataPort` + `MT5MarketDataAdapter` + `MarketService`);
   ticks, OHLC candles, symbol info, snapshots (`scripts/check_market.py`)
 - ✅ Trading state (read-only `Account/Position/Order/HistoryService`);
@@ -38,13 +39,16 @@ See [docs/architecture/overview.md](docs/architecture/overview.md) and [SECURITY
 - ✅ Supervisor + risk engine (13 deterministic rules, explicit codes,
   duplicate/cooldown ledger; `scripts/check_risk.py`)
 - ✅ Execution engine (approved-only, dry-run/demo/live gates, idempotent
-  ledger, full audit records; `scripts/check_execute.py`)
+  ledger, UNKNOWN-state for ambiguous outcomes, full audit records;
+  `scripts/check_execute.py`)
 - ✅ Memory system (`MemoryStore` + SQLite; short-term/trade/strategy/world
   scopes, retention-bounded; `scripts/check_memory.py`)
 - ✅ Agent orchestrator (`TradingAgent` 9-stage cycles, graceful shutdown,
-  memory-backed planning; `scripts/run_agent.py`)
+  watchdog (halt-only), memory-backed planning; `scripts/run_agent.py`)
 - ✅ Dashboard (read-only stdlib HTTP: account/market/agent/risk/memory/LLM;
-  `scripts/serve_dashboard.py`)
+  `/api/health` readiness; `scripts/serve_dashboard.py`)
+- ✅ Production hardening (HEALTHY/DEGRADED/UNHEALTHY, watchdog, audit log,
+  runbook: `docs/operations/hardening.md`)
 
 Roadmap: [ROADMAP.md](ROADMAP.md) · Changes: [CHANGELOG.md](CHANGELOG.md) · Phases: [docs/phases/](docs/phases/)
 
@@ -79,7 +83,7 @@ mypy src
 
 ## Roadmap (abridged)
 
-Foundation → MT5 read-only → Market data → Account → Strategy → LLM → Planner → Supervisor → Demo exec → Memory → Agent → Dashboard → Hardening.
+Foundation → MT5 read-only → Market data → Account → Strategy → LLM → Planner → Supervisor → Demo exec → Memory → Agent → Dashboard → Hardening ✅.
 
 ## Disclaimer
 

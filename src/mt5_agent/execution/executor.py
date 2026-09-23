@@ -7,6 +7,7 @@ the ledger instead of resent, so duplicate orders are impossible by retry.
 
 from __future__ import annotations
 
+import logging
 from abc import ABC, abstractmethod
 from datetime import UTC, datetime
 from typing import Any
@@ -21,7 +22,10 @@ from mt5_agent.domain.execution import (
 from mt5_agent.domain.planning import TradeAction, TradeProposal
 from mt5_agent.domain.ports import MT5ConnectionPort
 from mt5_agent.infrastructure.mt5.module import load_mt5
+from mt5_agent.logging_utils import audit
 from mt5_agent.risk.supervisor import SupervisorDecision
+
+logger = logging.getLogger(__name__)
 
 TRADE_MODE_DEMO = 0
 TRADE_MODE_CONTEST = 1
@@ -83,6 +87,17 @@ class MT5TradeExecutor(TradeExecutor):
             return self._ledger[key]
         record = self._run(decision, key)
         self._ledger[key] = record
+        audit(
+            logger,
+            "order_result",
+            client_id=key,
+            symbol=record.symbol,
+            action=record.action.value,
+            status=record.status.value,
+            mode=record.mode.value,
+            ticket=record.ticket,
+            message=record.message,
+        )
         return record
 
     def _run(self, decision: SupervisorDecision, client_id: str) -> ExecutionRecord:
@@ -122,7 +137,23 @@ class MT5TradeExecutor(TradeExecutor):
         try:
             return self._execute_live(request, proposal)
         except MT5NotConnectedError as exc:
-            return self._record(client_id, proposal, ExecutionStatus.FAILED, str(exc))
+            return self._record(
+                client_id,
+                proposal,
+                ExecutionStatus.FAILED,
+                f"{exc} Reconnect, re-verify account/positions/orders, "
+                "then retry with the same client_id.",
+            )
+        except (TimeoutError, OSError) as exc:
+            # Ambiguous: the order may have reached the server. A timeout is
+            # NOT proof of failure — verify before any retry (same client_id).
+            return self._record(
+                client_id,
+                proposal,
+                ExecutionStatus.UNKNOWN,
+                f"ambiguous result after {type(exc).__name__}: {exc}. "
+                "Verify positions/orders before retrying with the same client_id.",
+            )
         except Exception as exc:  # terminal failures become FAILED records, never raise
             return self._record(
                 client_id, proposal, ExecutionStatus.FAILED, f"{type(exc).__name__}: {exc}"
@@ -139,6 +170,15 @@ class MT5TradeExecutor(TradeExecutor):
                 ExecutionStatus.REJECTED,
                 "DEMO mode refused on a real account",
             )
+        audit(
+            logger,
+            "order_submitted",
+            client_id=request.client_id,
+            symbol=request.symbol,
+            action=request.action.value,
+            volume=request.volume,
+            mode=self._mode.value,
+        )
         tick = mt5.symbol_info_tick(request.symbol)
         if tick is None:
             return self._record(
