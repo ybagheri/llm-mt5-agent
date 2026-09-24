@@ -43,6 +43,7 @@ from mt5_agent.domain.strategy import (
     StrategyContext,
     StrategyDecision,
     StrategySignal,
+    select_primary,
 )
 from mt5_agent.domain.terminal import (
     ConnectionConfig,
@@ -105,6 +106,7 @@ __all__ = [
     "StrategyContext",
     "StrategyDecision",
     "StrategySignal",
+    "select_primary",
     "SymbolInfo",
     "TerminalInfo",
     "Tick",

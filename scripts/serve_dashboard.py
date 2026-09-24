@@ -58,9 +58,7 @@ def _build_health(conn, market, store, settings) -> HealthService:  # noqa: ANN0
         return ComponentHealth("mt5", HealthStatus.UNHEALTHY, health.error or "disconnected")
 
     def market_probe() -> ComponentHealth:
-        snapshot = market.get_snapshot(
-            settings.mt5_default_symbol, Timeframe.M1, count=5
-        )
+        snapshot = market.get_snapshot(settings.mt5_default_symbol, Timeframe.M1, count=5)
         if not snapshot.candles:
             return ComponentHealth("market", HealthStatus.DEGRADED, "no candles returned")
         return ComponentHealth("market", HealthStatus.HEALTHY, "snapshot ok")
@@ -77,9 +75,7 @@ def _build_health(conn, market, store, settings) -> HealthService:  # noqa: ANN0
         return ComponentHealth("llm", HealthStatus.HEALTHY, "configured (HOLD on failure)")
 
     def executor_probe() -> ComponentHealth:
-        return ComponentHealth(
-            "executor", HealthStatus.HEALTHY, f"mode={settings.execution_mode}"
-        )
+        return ComponentHealth("executor", HealthStatus.HEALTHY, f"mode={settings.execution_mode}")
 
     return HealthService(
         {

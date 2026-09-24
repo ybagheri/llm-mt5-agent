@@ -30,7 +30,7 @@ from mt5_agent.domain.agent import (
 )
 from mt5_agent.domain.market import MarketSnapshot, Timeframe
 from mt5_agent.domain.planning import MemoryNote, PlannerInput, TradeAction
-from mt5_agent.domain.strategy import MarketContext
+from mt5_agent.domain.strategy import MarketContext, select_primary
 from mt5_agent.domain.trading import AccountState, Order, Position
 from mt5_agent.execution.executor import MT5TradeExecutor
 from mt5_agent.logging_utils import audit
@@ -110,10 +110,18 @@ class ContextBuilder:
             observation.account,
         )
 
-    def build_planner_input(self, observation: Observation, signal_index: int = 0) -> PlannerInput:
+    def build_planner_input(
+        self, observation: Observation, signal_index: int | None = None
+    ) -> PlannerInput:
+        """Build planner input. `None` (default) auto-selects the primary signal
+        (first directional, else first); an explicit index pins one strategy
+        (useful for debugging multi-strategy routing)."""
         context = self.build_context(observation)
         signals = self._strategies.analyze(context)
-        signal = signals[min(signal_index, len(signals) - 1)]
+        if signal_index is None:
+            signal = select_primary(signals)
+        else:
+            signal = signals[min(signal_index, len(signals) - 1)]
         return PlannerInput(
             observation.snapshot.symbol,
             observation.snapshot.timeframe,
@@ -277,7 +285,10 @@ class TradingAgent:
             context: MarketContext = state["context"]
             signals = self._context_builder.strategies.analyze(context)
             state["signals"] = signals
-            primary = signals[0]
+            # Primary = first directional signal (else the baseline). NullStrategy
+            # stays registered first as the safe always-FLAT fallback; selection
+            # (not order) decides what the Planner sees.
+            primary = select_primary(signals)
             state["signal"] = primary
             if self._strategy_memory is not None:
                 try:

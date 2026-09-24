@@ -14,6 +14,7 @@ from mt5_agent.domain.strategy import (
     Setup,
     StrategyDecision,
     StrategySignal,
+    select_primary,
 )
 
 
@@ -64,3 +65,23 @@ def test_decision_requires_reasons() -> None:
     with pytest.raises(ValueError):
         StrategyDecision(DecisionAction.SKIP, sig, ())
     assert StrategyDecision(DecisionAction.SKIP, sig, ("r",)).action == DecisionAction.SKIP
+
+
+def _sig(name: str, direction: Direction) -> StrategySignal:
+    now = datetime(2026, 1, 1, tzinfo=UTC)
+    return StrategySignal(name, "EURUSD", Timeframe.M1, direction, 0.5, (), {}, "", now)
+
+
+def test_select_primary_prefers_directional() -> None:
+    flat = _sig("null", Direction.FLAT)
+    long = _sig("donchian_breakout", Direction.LONG)
+    assert select_primary([flat, long]) is long
+    assert select_primary([long, flat]) is long
+
+
+def test_select_primary_falls_back_to_first() -> None:
+    first = _sig("null", Direction.FLAT)
+    second = _sig("other", Direction.FLAT)
+    assert select_primary([first, second]) is first
+    with pytest.raises(ValueError):
+        select_primary([])

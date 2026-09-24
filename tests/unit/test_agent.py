@@ -6,7 +6,7 @@ from datetime import UTC, datetime
 from typing import Any
 
 from mt5_agent.application.account_service import AccountService
-from mt5_agent.application.agent import ContextBuilder, Observer, TradingAgent
+from mt5_agent.application.agent import ContextBuilder, Observation, Observer, TradingAgent
 from mt5_agent.application.market_service import MarketService
 from mt5_agent.application.order_service import OrderService
 from mt5_agent.application.position_service import PositionService
@@ -15,7 +15,9 @@ from mt5_agent.domain.account import AccountInfo
 from mt5_agent.domain.agent import Stage, StageStatus
 from mt5_agent.domain.market import Candle, MarketSnapshot, SymbolInfo, Tick, Timeframe
 from mt5_agent.domain.planning import TradeAction
+from mt5_agent.domain.strategy import Direction, MarketContext, StrategySignal
 from mt5_agent.domain.terminal import ConnectionHealth, TerminalInfo
+from mt5_agent.domain.trading import AccountState
 from mt5_agent.execution.executor import MT5TradeExecutor
 from mt5_agent.memory.memories import (
     ShortTermMemory,
@@ -95,6 +97,25 @@ class BoomMarket(FakeMarketPort):
         raise RuntimeError("feed down")
 
 
+class LongStrategy:
+    """Directional fake: always LONG (proves selection prefers direction)."""
+
+    name = "long"
+
+    def analyze(self, context: MarketContext) -> StrategySignal:
+        return StrategySignal(
+            "long",
+            context.symbol,
+            context.timeframe,
+            Direction.LONG,
+            0.8,
+            (),
+            {},
+            "long bias",
+            datetime.now(UTC),
+        )
+
+
 def _agent(**overrides: Any) -> tuple[TradingAgent, SQLiteMemoryStore]:
     store = SQLiteMemoryStore(":memory:")
     market = MarketService(overrides.get("market_port", FakeMarketPort()))
@@ -103,7 +124,7 @@ def _agent(**overrides: Any) -> tuple[TradingAgent, SQLiteMemoryStore]:
     orders = OrderService(FakeOrders())
     account = AccountService(conn, FakePositions(), FakeOrders())
     observer = Observer(market, account, positions, orders)
-    strategies = StrategyService([NullStrategy()])
+    strategies = StrategyService(overrides.get("strategies", [NullStrategy()]))
     memories = {
         "strategy_memory": StrategyMemory(store),
         "trade_memory": TradeMemory(store),
@@ -137,6 +158,31 @@ def test_full_cycle_hold_path() -> None:
         assert ShortTermMemory(store).count() == 1
     finally:
         store.close()
+
+
+def test_directional_signal_becomes_primary() -> None:
+    agent, store = _agent(strategies=[NullStrategy(), LongStrategy()])
+    try:
+        cycle = agent.run_cycle("EURUSD", Timeframe.M1)
+        assert cycle.ok is True
+        assert cycle.stage(Stage.STRATEGY).summary == "long:LONG"
+        # Planner is None -> HOLD proposal, but the recorded signal is directional.
+        (record,) = StrategyMemory(store).recent(limit=1)
+        assert "LONG" in record.summary
+    finally:
+        store.close()
+
+
+def test_planner_input_auto_selects_directional_and_pin_overrides() -> None:
+    now = datetime(2026, 1, 1, tzinfo=UTC)
+    account = AccountState(
+        AccountInfo(1, "S", "USD", 10000.0, 10000.0, 0, 10000.0, 0, trade_allowed=True)
+    )
+    observation = Observation(_snapshot(), account, (), (), now)
+    builder = ContextBuilder(StrategyService([NullStrategy(), LongStrategy()]))
+    assert builder.build_planner_input(observation).signal.strategy == "long"
+    assert builder.build_planner_input(observation, signal_index=0).signal.strategy == "null"
+    assert builder.build_planner_input(observation, signal_index=99).signal.strategy == "long"
 
 
 def test_observe_failure_degrades() -> None:

@@ -141,11 +141,11 @@ class DashboardStateProvider:
 
     def _agent_section(self, symbol: str, snapshot: Any) -> AgentSection:
         try:
-            from mt5_agent.domain.strategy import MarketContext
+            from mt5_agent.domain.strategy import MarketContext, select_primary
 
             context = MarketContext(symbol, snapshot.timeframe, snapshot)
             signals = self._strategies.analyze(context)
-            primary = signals[0]
+            primary = select_primary(signals)
             return AgentSection(
                 state="ready",
                 strategy=primary.strategy,

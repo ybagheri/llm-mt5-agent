@@ -100,6 +100,21 @@ class StrategyDecision:
 StrategyContext = MarketContext
 
 
+def select_primary(signals: list[StrategySignal] | tuple[StrategySignal, ...]) -> StrategySignal:
+    """Pick the signal the Planner should reason over.
+
+    First directional (LONG/SHORT) signal wins; all-FLAT falls back to the
+    first signal (typically the observation-only baseline). Registration order
+    is preserved — this only affects *selection*, never evaluation.
+    """
+    if not signals:
+        raise ValueError("at least one signal is required")
+    for signal in signals:
+        if signal.direction != Direction.FLAT:
+            return signal
+    return signals[0]
+
+
 def _utc(value: datetime) -> datetime:
     if value.tzinfo is None:
         return value.replace(tzinfo=UTC)
@@ -114,4 +129,5 @@ __all__ = [
     "StrategyContext",
     "StrategyDecision",
     "StrategySignal",
+    "select_primary",
 ]

@@ -119,7 +119,10 @@ def main() -> int:
         snap = market.get_snapshot(symbol, timeframe, count=args.count)
         ctx = MarketContext(symbol, timeframe, snap)
         signals = StrategyService([NullStrategy(), DonchianBreakoutStrategy()]).analyze(ctx)
-        signal = next(s for s in signals if s.strategy != "null")
+        # Same selection rule as the agent (first directional, else baseline).
+        from mt5_agent.domain.strategy import select_primary  # noqa: E402
+
+        signal = select_primary(signals)
         planner_input = PlannerInput(symbol, timeframe, snap, signal)
         provider: LLMProvider = StubProvider() if args.stub else provider_from_settings(settings)
         proposal = LLMPlanner(provider).plan(planner_input)

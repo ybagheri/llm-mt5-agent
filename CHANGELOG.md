@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [Unreleased]
+
+### Fixed
+- Signal selection: the agent and dashboard now plan/display the first
+  directional (LONG/SHORT) signal instead of always using the first
+  registered strategy (`NullStrategy`, always FLAT). New `select_primary()`
+  helper (`domain/strategy.py`); `ContextBuilder.build_planner_input()`
+  auto-selects by default with `signal_index=N` as an explicit pin override.
+  Safety model unchanged: directional proposals still pass Planner validation,
+  Supervisor veto, and dry-run-first execution.
+
 ## [0.13.0] - 2026-09-23
 
 ### Added
