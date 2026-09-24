@@ -122,7 +122,7 @@ def main() -> int:
 
         market = MarketService(MT5MarketDataAdapter(connection=conn))
         trading = MT5TradingDataAdapter(connection=conn)
-        account = AccountService(conn, trading, trading)
+        account = AccountService(conn, trading, trading, trading)
         provider = DashboardStateProvider(
             market=market,
             account=account,
@@ -137,7 +137,7 @@ def main() -> int:
             llm_provider_name=settings.llm_provider,
             llm_model=settings.llm_model or "",
             version=__version__,
-            trading_mode=settings.trading_mode,
+            trading_mode=settings.execution_mode,
         )
         health = _build_health(conn, market, store, settings)
         app = DashboardApp(

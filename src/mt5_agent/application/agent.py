@@ -10,7 +10,7 @@ from __future__ import annotations
 
 import logging
 import threading
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from datetime import UTC, datetime
 from typing import Any
 
@@ -32,7 +32,7 @@ from mt5_agent.domain.market import MarketSnapshot, Timeframe
 from mt5_agent.domain.planning import MemoryNote, PlannerInput, TradeAction
 from mt5_agent.domain.strategy import MarketContext, select_primary
 from mt5_agent.domain.trading import AccountState, Order, Position
-from mt5_agent.execution.executor import MT5TradeExecutor
+from mt5_agent.execution.executor import TradeExecutor
 from mt5_agent.logging_utils import audit
 from mt5_agent.memory.memories import (
     ShortTermMemory,
@@ -77,8 +77,8 @@ class Observer:
         return Observation(
             snapshot=snapshot,
             account=self._account.get_state(),
-            positions=tuple(self._positions.open_positions(symbol)),
-            orders=tuple(self._orders.pending_orders(symbol)),
+            positions=tuple(self._positions.open_positions()),
+            orders=tuple(self._orders.pending_orders()),
             observed_at=datetime.now(UTC),
         )
 
@@ -128,7 +128,11 @@ class ContextBuilder:
             observation.snapshot,
             signal,
             observation.account,
-            observation.positions,
+            tuple(
+                position
+                for position in observation.positions
+                if position.symbol == observation.snapshot.symbol
+            ),
             self.memory_notes(observation.snapshot.symbol),
         )
 
@@ -155,12 +159,13 @@ class TradingAgent:
         context_builder: ContextBuilder,
         planner: Planner | None,
         supervisor: Supervisor,
-        executor: MT5TradeExecutor,
+        executor: TradeExecutor,
         short_term: ShortTermMemory | None = None,
         trade_memory: TradeMemory | None = None,
         strategy_memory: StrategyMemory | None = None,
         world_memory: WorldMemory | None = None,
         candle_count: int = 50,
+        default_volume: float = 0.01,
         watchdog: Watchdog | None = None,
     ) -> None:
         self._observer = observer
@@ -173,6 +178,7 @@ class TradingAgent:
         self._strategy_memory = strategy_memory
         self._world_memory = world_memory
         self._candle_count = candle_count
+        self._default_volume = default_volume
         self._watchdog = watchdog
         self._stop = threading.Event()
         self._cycles = 0
@@ -339,16 +345,24 @@ class TradingAgent:
         try:
             observation: Observation = state["observation"]
             proposal = state["proposal"]
+            if proposal.is_actionable and proposal.volume is None:
+                proposal = replace(proposal, volume=self._default_volume)
+                state["proposal"] = proposal
             tick = observation.snapshot.tick
+            info = observation.snapshot.symbol_info
             spread_points: dict[str, float] = {}
-            if tick is not None:
-                spread_points[observation.snapshot.symbol] = tick.spread
+            symbol_points: dict[str, float] = {}
+            if tick is not None and info is not None and info.point > 0:
+                spread_points[observation.snapshot.symbol] = tick.spread / info.point
+                symbol_points[observation.snapshot.symbol] = info.point
             context = RiskContext(
                 account=observation.account,
                 positions=observation.positions,
                 orders=observation.orders,
                 spreads_points=spread_points,
+                symbol_points=symbol_points,
                 server_time=datetime.now(UTC),
+                day_pnl=observation.account.day_realized_pnl,
             )
             decision = self._supervisor.review(proposal, context)
             state["decision"] = decision

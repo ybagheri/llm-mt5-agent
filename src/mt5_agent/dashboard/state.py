@@ -15,7 +15,7 @@ class AccountSection:
     floating_profit: float = 0.0
     day_pnl: float | None = None
     currency: str = ""
-    login: int = 0
+    login: int | None = None
     server: str = ""
 
 

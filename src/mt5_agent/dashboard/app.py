@@ -44,19 +44,20 @@ async function load() {
     const res = await fetch('/api/state?' + params.toString());
     const s = await res.json();
     document.getElementById('app').innerHTML = render(s);
-  } catch (e) { document.getElementById('app').innerHTML = '<p class="err">fetch failed: ' + e + '</p>'; }
+  } catch (e) { document.getElementById('app').textContent = 'fetch failed'; }
 }
-function row(k, v) { return '<tr><td>' + k + '</td><td>' + (v === null || v === undefined ? 'n/a' : v) + '</td></tr>'; }
-function section(title, rows) { return '<h2>' + title + '</h2><table>' + rows.join('') + '</table>'; }
+function esc(value) { return String(value ?? '').replace(/[&<>"']/g, (c) => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function row(k, v) { return '<tr><td>' + esc(k) + '</td><td>' + esc(v) + '</td></tr>'; }
+function section(title, rows) { return '<h2>' + esc(title) + '</h2><table>' + rows.join('') + '</table>'; }
 function render(s) {
-  if (s.error) return '<p class="err">Error: ' + s.error + '</p>';
-  let h = '<p><span class="badge ok">v' + s.version + '</span> <span class="badge">' + s.trading_mode + '</span></p>';
-  h += section('Account', [row('Login', s.account.login + ' @ ' + s.account.server), row('Balance', s.account.balance + ' ' + s.account.currency), row('Equity', s.account.equity), row('Margin', s.account.margin), row('Free margin', s.account.free_margin), row('Floating', s.account.floating_profit), row('Day P&L', s.account.day_pnl)]);
+  if (s.error) return '<p class="err">Error: ' + esc(s.error) + '</p>';
+  let h = '<p><span class="badge ok">v' + esc(s.version) + '</span> <span class="badge">' + esc(s.trading_mode) + '</span></p>';
+  h += section('Account', [row('Server', s.account.server), row('Balance', s.account.balance + ' ' + s.account.currency), row('Equity', s.account.equity), row('Margin', s.account.margin), row('Free margin', s.account.free_margin), row('Floating', s.account.floating_profit), row('Day P&L', s.account.day_pnl)]);
   h += section('Market', [row('Symbol', s.market.symbol + ' ' + s.market.timeframe), row('Bid/Ask', s.market.bid + ' / ' + s.market.ask), row('Spread (pt)', s.market.spread_points), row('Close', s.market.latest_close), row('Session open', s.market.session_open)]);
   h += section('Agent', [row('State', s.agent.state), row('Strategy', s.agent.strategy + ' → ' + s.agent.direction), row('Confidence', s.agent.confidence), row('Proposal', s.agent.proposal_action + ' — ' + s.agent.proposal_summary)]);
   h += section('Risk', [row('Max risk/trade', s.risk.max_risk_pct + '%'), row('Exposure', s.risk.exposure_volume + ' / ' + s.risk.max_exposure_volume), row('Positions', s.risk.open_positions + ' / ' + s.risk.max_open_positions), row('Day P&L', s.risk.day_pnl)]);
   h += section('LLM', [row('Provider', s.llm.provider + ' / ' + s.llm.model), row('Latency ms', s.llm.latency_ms), row('Tokens', s.llm.total_tokens), row('Est. cost USD', s.llm.estimated_cost_usd)]);
-  const list = (items) => items.length ? items.map(i => '<tr><td>' + i.kind + '</td><td>' + i.symbol + '</td><td>' + i.summary + '</td></tr>').join('') : '<tr><td colspan="3">none</td></tr>';
+  const list = (items) => items.length ? items.map(i => '<tr><td>' + esc(i.kind) + '</td><td>' + esc(i.symbol) + '</td><td>' + esc(i.summary) + '</td></tr>').join('') : '<tr><td colspan="3">none</td></tr>';
   h += '<h2>Memory</h2><h3>Decisions</h3><table>' + list(s.memory.recent_decisions) + '</table><h3>Trades</h3><table>' + list(s.memory.recent_trades) + '</table><h3>Events</h3><table>' + list(s.memory.recent_events) + '</table>';
   return h;
 }
@@ -146,6 +147,13 @@ class DashboardHandler(BaseHTTPRequestHandler):
         self.send_response(status)
         self.send_header("Content-Type", content_type)
         self.send_header("Content-Length", str(len(body)))
+        self.send_header("Cache-Control", "no-store")
+        self.send_header("X-Content-Type-Options", "nosniff")
+        self.send_header("X-Frame-Options", "DENY")
+        self.send_header(
+            "Content-Security-Policy",
+            "default-src 'self'; script-src 'unsafe-inline'; style-src 'unsafe-inline'",
+        )
         self.end_headers()
         self.wfile.write(body)
 

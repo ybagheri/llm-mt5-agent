@@ -56,7 +56,7 @@ class DailyLossRule(RiskRule):
         self, proposal: TradeProposal, context: RiskContext, config: RiskConfig
     ) -> Violation | None:
         if context.day_pnl is None:
-            return None  # unknown P&L: cannot evaluate (abstain, documented)
+            return self._fail("daily P&L is unavailable; fail closed")
         limit = context.account.balance * config.max_daily_loss_pct / 100.0
         if context.day_pnl <= -limit:
             return self._fail(f"day P&L {context.day_pnl} breached daily loss limit {limit}")
@@ -131,7 +131,7 @@ class SpreadRule(RiskRule):
             return None
         spread = context.spreads_points.get(proposal.symbol)
         if spread is None:
-            return None  # unknown spread: abstain (documented)
+            return self._fail("spread is unavailable; fail closed")
         if spread > config.max_spread_points:
             return self._fail(f"spread {spread}pt exceeds max {config.max_spread_points}pt")
         return None
@@ -174,7 +174,7 @@ class MinStopDistanceRule(RiskRule):
             return None
         point = context.symbol_points.get(proposal.symbol) or 0.0
         if point <= 0:
-            return None  # unknown point size: abstain (documented)
+            return self._fail("symbol point size is unavailable; fail closed")
         distance_points = abs(proposal.entry - proposal.stop_loss) / point
         if distance_points < config.min_stop_points:
             return self._fail(

@@ -64,7 +64,6 @@ def main() -> int:
             json.dumps(
                 {
                     "account": {
-                        "login": state.account.login,
                         "server": state.account.server,
                         "currency": state.account.currency,
                         "balance": state.balance,

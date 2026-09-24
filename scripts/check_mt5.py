@@ -44,7 +44,6 @@ def main() -> int:
         try:
             account = svc.get_account()
             account_dict = {
-                "login": account.login,
                 "server": account.server,
                 "currency": account.currency,
                 "balance": account.balance,

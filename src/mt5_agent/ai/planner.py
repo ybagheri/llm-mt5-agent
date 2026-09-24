@@ -167,6 +167,13 @@ def validate_proposal(
             model=model,
             latency_ms=latency_ms,
         )
+    signal_direction = planner_input.signal.direction
+    expected_direction = "LONG" if action == TradeAction.BUY else "SHORT"
+    if signal_direction.value != expected_direction:
+        raise ValueError(
+            f"{action.value} requires deterministic signal direction {expected_direction}; "
+            f"received {signal_direction.value}"
+        )
     if entry is None:
         raise ValueError("directional proposals require entry")
     if stop_loss is None or take_profit is None:

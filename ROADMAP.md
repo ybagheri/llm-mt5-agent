@@ -4,22 +4,13 @@ Lifecycle: `OBSERVE → CONTEXT → STRATEGY → MEMORY → PLAN → SUPERVISE �
 
 | Phase | Name | Status |
 |------:|------|--------|
-| 00 | Project Foundation | ✅ Done (v0.1.0) |
-| 01 | MT5 Connectivity | ✅ Done (v0.2.0) |
-| 02 | Market Data Layer | ✅ Done (v0.3.0) |
-| 03 | Account, Orders, Positions, History | ✅ Done (v0.4.0) |
-| 04 | Strategy Engine | ✅ Done (v0.5.0) |
-| 05 | LLM Provider Layer | ✅ Done (v0.6.0) |
-| 06 | Planner | ✅ Done (v0.7.0) |
-| 07 | Supervisor and Risk Engine | ✅ Done (v0.8.0) |
-| 08 | Execution Engine | ✅ Done (v0.9.0) |
-| 09 | Memory System | ✅ Done (v0.10.0) |
-| 10 | Agent Orchestrator | ✅ Done (v0.11.0) |
-| 11 | Dashboard (read-only) | ✅ Done (v0.12.0) |
-| 12 | Production Hardening | ✅ Done (v0.13.0) |
+| 00–12 | Foundation through hardening prototype | ✅ Implemented |
+| 13 | Safety baseline hardening | ✅ Implemented: signal binding, fail-closed risk context, account-wide exposure, verified non-dry connection, dashboard escaping, account redaction |
+| 14 | Execution durability | Planned: persistent idempotency ledger, UNKNOWN reconciliation, deal-level fills, broker filling-mode selection |
+| 15 | Data freshness and recovery | Planned: source-aware candle/tick freshness, integrated reconnect, pre-submit revalidation |
+| 16 | Evaluation and replay | Planned: closed-bar backtesting, spread/slippage assumptions, confidence calibration |
+| 17 | Operations and release | Planned: Windows service packaging, secret scanning, SBOM, signed releases, live-trading runbook |
 
-Order is intentional: the system must become **reliable before autonomous**.
-Live trading stays disabled until Phase 12 hardening + explicit opt-in.
-Phase 12 hardening is complete; live remains opt-in only.
+Order is intentional: the system must become reliable before autonomous. Live trading remains disabled by default and is not qualified for unattended real-money operation.
 
-Details per phase: [docs/phases/](docs/phases/)
+The current project is a technically strong demo/paper research baseline, not a claim of profitability. Detailed phase documents remain in [docs/phases/](docs/phases/), and the current operator documentation starts at [docs/architecture.md](docs/architecture.md).

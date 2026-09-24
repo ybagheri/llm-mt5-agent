@@ -95,7 +95,7 @@ def main() -> int:
     try:
         market = MarketService(MT5MarketDataAdapter(connection=conn))
         trading = MT5TradingDataAdapter(connection=conn)
-        account = AccountService(conn, trading, trading)
+        account = AccountService(conn, trading, trading, trading)
         observer = Observer(market, account, PositionService(trading), OrderService(trading))
         short_term = ShortTermMemory(store, keep_last=settings.memory_short_term_keep)
         trade_memory = TradeMemory(store, keep_last=settings.memory_trade_keep)
@@ -131,6 +131,7 @@ def main() -> int:
             strategy_memory=strategy_memory,
             world_memory=world_memory,
             candle_count=settings.agent_candle_count,
+            default_volume=settings.execution_default_volume,
             watchdog=Watchdog(
                 WatchdogConfig(
                     max_consecutive_failures=settings.watchdog_max_consecutive_failures,

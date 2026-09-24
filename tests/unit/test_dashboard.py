@@ -175,6 +175,8 @@ def test_http_read_only_contract() -> None:
             assert data["market"]["symbol"] == "EURUSD"
         with urllib.request.urlopen(url + "/", timeout=5) as response:
             assert "read-only" in response.read().decode()
+            assert response.headers["X-Frame-Options"] == "DENY"
+            assert response.headers["Cache-Control"] == "no-store"
         for method in ("POST", "PUT", "DELETE", "PATCH"):
             request = urllib.request.Request(url + "/api/state", method=method)
             try:

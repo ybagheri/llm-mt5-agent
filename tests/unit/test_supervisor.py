@@ -33,7 +33,11 @@ def _context(now: datetime | None = None) -> RiskContext:
     account = AccountState(
         AccountInfo(1, "S", "USD", 10000.0, 10000.0, 100.0, 9900.0, 0.0, trade_allowed=True)
     )
-    return RiskContext(account=account, server_time=now or datetime(2026, 1, 6, 12, tzinfo=UTC))
+    return RiskContext(
+        account=account,
+        server_time=now or datetime(2026, 1, 6, 12, tzinfo=UTC),
+        day_pnl=0.0,
+    )
 
 
 def test_check_is_pure_and_hold_skipped() -> None:

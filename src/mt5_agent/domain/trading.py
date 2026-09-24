@@ -147,6 +147,7 @@ class AccountState:
     exposure_volume: float = 0.0
     net_volume: float = 0.0
     floating_profit: float = 0.0
+    day_realized_pnl: float | None = None
 
     @property
     def balance(self) -> float:

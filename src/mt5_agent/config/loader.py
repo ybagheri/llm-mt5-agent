@@ -66,7 +66,9 @@ def load_settings(
     if load_env_file:
         load_dotenv(dotenv_path=Path(".env"), override=False)
     path = _resolve_config_path(config_path)
-    file_values: dict[str, Any] = _read_yaml(path) if path and path.is_file() else {}
+    if path is not None and not path.is_file():
+        raise FileNotFoundError(f"Configuration file not found: {path}")
+    file_values: dict[str, Any] = _read_yaml(path) if path is not None else {}
     # pydantic-settings prioritizes init kwargs over env vars, so drop any file
     # value shadowed by an explicit MT5_AGENT_* env var to keep env-over-file.
     for key in _env_overridden_keys():

@@ -70,7 +70,7 @@ def test_scrub_value_redacts_nested_secrets() -> None:
     scrubbed = scrub_value(data)
     assert scrubbed["symbol"] == "EURUSD"
     assert scrubbed["api_key"] == "***"
-    assert scrubbed["nested"] == {"password": "***", "login": 123}
+    assert scrubbed["nested"] == {"password": "***", "login": "***"}
     assert scrubbed["items"][0] == {"token": "***"}
     # original must be untouched
     assert data["api_key"] == "sk-live"
@@ -276,7 +276,19 @@ class _OfflineConnection:
 
 def test_execution_timeout_is_unknown_not_failed() -> None:
     _TimeoutMT5.send_calls = 0
-    executor = MT5TradeExecutor(mode=ExecutionMode.DEMO, mt5_module=_TimeoutMT5(), connection=None)
+
+    class DemoConnection:
+        def is_connected(self) -> bool:
+            return True
+
+        def get_account_info(self) -> AccountInfo:
+            return AccountInfo(1, "S", "USD", 1.0, 1.0, 0.0, 1.0, 0.0, trade_mode=0)
+
+    executor = MT5TradeExecutor(
+        mode=ExecutionMode.DEMO,
+        mt5_module=_TimeoutMT5(),
+        connection=DemoConnection(),  # type: ignore[arg-type]
+    )
     record = executor.execute(_approved(_proposal()), client_id="ambiguous1")
     assert record.status == ExecutionStatus.UNKNOWN
     assert "same client_id" in record.message

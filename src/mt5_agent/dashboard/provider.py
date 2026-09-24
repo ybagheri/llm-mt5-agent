@@ -102,7 +102,6 @@ class DashboardStateProvider:
             floating_profit=state.floating_profit,
             day_pnl=self._day_pnl(state),
             currency=state.account.currency,
-            login=state.account.login,
             server=state.account.server,
         )
 

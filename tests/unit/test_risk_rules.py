@@ -52,6 +52,7 @@ def _ctx(**kwargs: object) -> RiskContext:
     base: dict[str, object] = {
         "account": _account(),
         "server_time": datetime(2026, 1, 6, 12, tzinfo=UTC),
+        "day_pnl": 0.0,
     }
     base.update(kwargs)
     return RiskContext(**base)  # type: ignore[arg-type]
@@ -75,7 +76,9 @@ def test_daily_loss() -> None:
     assert engine.validate(_buy(), _ctx(day_pnl=-100.0)).approved is True
     result = engine.validate(_buy(), _ctx(day_pnl=-300.0))
     assert ViolationCode.MAX_DAILY_LOSS_EXCEEDED in result.codes
-    assert engine.validate(_buy(), _ctx(day_pnl=None)).approved is True  # abstains
+    assert engine.validate(_buy(), _ctx(day_pnl=None)).codes == (
+        ViolationCode.MAX_DAILY_LOSS_EXCEEDED,
+    )
 
 
 def test_max_positions() -> None:
@@ -112,7 +115,7 @@ def test_spread() -> None:
     assert engine.validate(_buy(), _ctx(spreads_points={"EURUSD": 10.0})).approved is True
     result = engine.validate(_buy(), _ctx(spreads_points={"EURUSD": 30.0}))
     assert result.codes == (ViolationCode.SPREAD_TOO_HIGH,)
-    assert engine.validate(_buy(), _ctx()).approved is True  # unknown: abstain
+    assert engine.validate(_buy(), _ctx()).codes == (ViolationCode.SPREAD_TOO_HIGH,)
 
 
 def test_mandatory_sl_tp() -> None:

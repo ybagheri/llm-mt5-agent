@@ -40,6 +40,9 @@ _SECRET_KEY_PARTS = (
     "bearer",
     "private_key",
     "credentials",
+    "account_login",
+    "login",
+    "server",
 )
 
 # Inline `key=value` / `key: value` pairs and `Bearer <...>` tokens in free text.
@@ -85,6 +88,8 @@ class SecretScrubbingFilter(logging.Filter):
             record.msg = scrub_message(record.msg)
         if record.args:
             record.args = scrub_value(record.args)
+        if record.exc_info and record.exc_info[0] is not None:
+            record.exc_text = scrub_message(logging.Formatter().formatException(record.exc_info))
         extra_fields = getattr(record, "extra_fields", None)
         if isinstance(extra_fields, dict):
             record.extra_fields = scrub_value(extra_fields)
@@ -105,7 +110,7 @@ class _JsonFormatter(logging.Formatter):
                 if key not in payload:
                     payload[key] = value
         if record.exc_info and record.exc_info[0] is not None:
-            payload["exc"] = self.formatException(record.exc_info)
+            payload["exc"] = record.exc_text or self.formatException(record.exc_info)
         return json.dumps(payload, default=str)
 
 

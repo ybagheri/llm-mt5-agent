@@ -95,6 +95,17 @@ def test_valid_buy_proposal() -> None:
     assert planner.provider.name == "fake"
 
 
+def test_directional_action_requires_matching_signal() -> None:
+    proposal = LLMPlanner(FakeProvider(dict(_BUY))).plan(_input(Direction.FLAT))
+    assert proposal.action == TradeAction.HOLD
+    assert "degraded" in proposal.rationale.lower()
+
+
+def test_opposite_directional_action_is_rejected() -> None:
+    proposal = LLMPlanner(FakeProvider(dict(_BUY))).plan(_input(Direction.SHORT))
+    assert proposal.action == TradeAction.HOLD
+
+
 def test_valid_sell_proposal() -> None:
     payload = {
         "action": "SELL",

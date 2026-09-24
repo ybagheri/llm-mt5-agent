@@ -21,6 +21,7 @@ def test_live_requires_explicit_opt_in() -> None:
 
 def test_live_opt_in_ok(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setenv("MT5_AGENT_TRADING_MODE", "live")
+    monkeypatch.setenv("MT5_AGENT_EXECUTION_MODE", "live")
     monkeypatch.setenv("MT5_AGENT_ENABLE_LIVE_TRADING", "true")
     s = AppSettings()
     assert s.trading_mode == "live"
@@ -29,6 +30,7 @@ def test_live_opt_in_ok(monkeypatch: pytest.MonkeyPatch) -> None:
 
 def test_yaml_loading(tmp_path, monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.delenv("MT5_AGENT_TRADING_MODE", raising=False)
+    monkeypatch.delenv("MT5_AGENT_EXECUTION_MODE", raising=False)
     monkeypatch.delenv("MT5_AGENT_ENABLE_LIVE_TRADING", raising=False)
     cfg = tmp_path / "app.yaml"
     cfg.write_text("app_name: test-agent\nlog_level: DEBUG\n", encoding="utf-8")
@@ -86,6 +88,6 @@ def test_risk_session_spec_validation() -> None:
 def test_execution_live_requires_opt_in() -> None:
     with pytest.raises(ValueError, match="Live trading is never enabled"):
         AppSettings(execution_mode="live", enable_live_trading=False)
-    s = AppSettings(execution_mode="live", enable_live_trading=True)
+    s = AppSettings(trading_mode="live", execution_mode="live", enable_live_trading=True)
     assert s.execution_mode == "live"
     assert AppSettings().execution_mode == "dry_run"

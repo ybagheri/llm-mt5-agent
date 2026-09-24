@@ -165,6 +165,10 @@ class AppSettings(BaseSettings):
                 "execution_mode='live' requires MT5_AGENT_ENABLE_LIVE_TRADING=true. "
                 "Live trading is never enabled by default."
             )
+        if self.trading_mode != self.execution_mode:
+            raise ValueError(
+                "trading_mode and execution_mode must match; execution_mode is authoritative"
+            )
         return self
 
     @classmethod
@@ -175,8 +179,9 @@ class AppSettings(BaseSettings):
     def masked(self) -> dict[str, Any]:
         """Return settings safe for logging (secrets redacted)."""
         data = self.model_dump()
-        if data.get("llm_api_key"):
-            data["llm_api_key"] = "***"
+        for key in ("llm_api_key", "mt5_login", "mt5_server"):
+            if data.get(key):
+                data[key] = "***"
         return data
 
     @staticmethod

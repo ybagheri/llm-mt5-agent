@@ -1,8 +1,4 @@
-"""Package entry-point: `python -m mt5_agent` and `mt5-agent` console script.
-
-Phase 00 only exposes configuration/logging smoke functionality.
-No trading functionality exists yet.
-"""
+"""Package entry-point for configuration and safe startup checks."""
 
 from __future__ import annotations
 
@@ -17,7 +13,7 @@ from mt5_agent.logging_utils import configure_logging, get_logger
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         prog="mt5-agent",
-        description="AI-assisted MetaTrader 5 agent (demo-first). Phase 00: foundation only.",
+        description="LLM-powered MetaTrader 5 decision-support agent (demo-first).",
     )
     parser.add_argument("--version", action="store_true", help="Print version and exit.")
     parser.add_argument(
@@ -60,11 +56,15 @@ def main(argv: list[str] | None = None) -> int:
                 "app_name": settings.app_name,
                 "env": settings.env,
                 "trading_mode": settings.trading_mode,
+                "execution_mode": settings.execution_mode,
             }
         },
     )
     print(f"{settings.app_name} v{__version__} [{settings.env}/{settings.trading_mode}] ready.")
-    print("Phase 00: foundation only — no trading functionality.")
+    print(
+        "Dry-run and demo-first safety gates are active. Use the provided scripts to run probes, "
+        "the agent, or the read-only dashboard."
+    )
     return 0
 
 

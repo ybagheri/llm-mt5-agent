@@ -160,16 +160,32 @@ class MT5TradeExecutor(TradeExecutor):
             )
 
     def _execute_live(self, request: OrderRequest, proposal: TradeProposal) -> ExecutionRecord:
-        mt5 = self._require_module()
-        if self._connection is not None and not self._connection.is_connected():
+        if self._connection is None:
+            return self._record(
+                request.client_id,
+                proposal,
+                ExecutionStatus.REJECTED,
+                "non-dry execution requires a verified MT5 connection",
+            )
+        if not self._connection.is_connected():
             raise MT5NotConnectedError("Not connected. Call connect() first.")
-        if self._mode == ExecutionMode.DEMO and self._trade_mode() == TRADE_MODE_REAL:
+        try:
+            account = self._connection.get_account_info()
+        except Exception as exc:
+            return self._record(
+                request.client_id,
+                proposal,
+                ExecutionStatus.REJECTED,
+                f"account verification failed; fail closed: {type(exc).__name__}",
+            )
+        if self._mode == ExecutionMode.DEMO and account.trade_mode == TRADE_MODE_REAL:
             return self._record(
                 request.client_id,
                 proposal,
                 ExecutionStatus.REJECTED,
                 "DEMO mode refused on a real account",
             )
+        mt5 = self._require_module()
         audit(
             logger,
             "order_submitted",
